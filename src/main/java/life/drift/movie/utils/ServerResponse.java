@@ -17,6 +17,10 @@ public class ServerResponse<T> {
     private ServerResponse() {
     }
 
+    public ServerResponse(int status) {
+        this.status = status;
+    }
+
     private ServerResponse(int status, T data) {
         this.status = status;
         this.data = data;
@@ -33,12 +37,20 @@ public class ServerResponse<T> {
         return this.status == 0;
     }
 
+    public static <T> ServerResponse createServerResponseBySuccess() {
+        return new ServerResponse();
+    }
+
     public static <T> ServerResponse createServerResponseBySuccess(T data) {
         return new ServerResponse(0, data);
     }
 
     public static <T> ServerResponse createServerResponseBySuccess(T data, String msg) {
         return new ServerResponse(0, data, msg);
+    }
+
+    public static <T> ServerResponse createServerResponseByFail(int status) {
+        return new ServerResponse(status);
     }
 
     public static <T> ServerResponse createServerResponseByFail(int status, String msg) {

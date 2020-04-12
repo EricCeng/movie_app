@@ -4,13 +4,13 @@ import java.security.NoSuchAlgorithmException;
 /**
  * MD5加密工具类
  * */
-public class MD5Utils {
+public class MD5Util {
 
     // 全局数组
     private final static String[] strDigits = { "0", "1", "2", "3", "4", "5",
             "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
 
-    public MD5Utils() {
+    public MD5Util() {
     }
 
     // 返回形式为数字跟字符串

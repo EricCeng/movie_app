@@ -1,5 +1,6 @@
 package life.drift.movie.service;
 
+import life.drift.movie.model.User;
 import life.drift.movie.utils.ServerResponse;
 
 public interface IUserService {
@@ -7,5 +8,8 @@ public interface IUserService {
     ServerResponse loginLogic(String username, String password);
 
     //注册
-    ServerResponse register
+    ServerResponse registerLogic(User user);
+
+    //修改信息
+    ServerResponse updateInfoLogic(User user);
 }
