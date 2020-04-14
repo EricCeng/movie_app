@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="life.drift.movie.mapper.MovieExtMapper">
+    <resultMap id="BaseResultMap" type="life.drift.movie.model.Movie">
+        <id column="ID" jdbcType="BIGINT" property="id"/>
+        <result column="MOVIE_NAME" jdbcType="VARCHAR" property="movieName"/>
+        <result column="MOVIE_AVATAR" jdbcType="VARCHAR" property="movieAvatar"/>
+        <result column="COUNTRY" jdbcType="VARCHAR" property="country"/>
+        <result column="SCORE" jdbcType="VARCHAR" property="score"/>
+        <result column="CATEGORY" jdbcType="VARCHAR" property="category"/>
+        <result column="IS_SHOWED" jdbcType="VARCHAR" property="isShowed"/>
+        <result column="IS_MARKED" jdbcType="VARCHAR" property="isMarked"/>
+        <result column="GMT_CREATE" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="GMT_MODIFIED" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="SHOW_TIME" jdbcType="DATE" property="showTime"/>
+        <result column="MOVIE_TIME" jdbcType="BIGINT" property="movieTime"/>
+        <result column="COMMENT_COUNT" jdbcType="BIGINT" property="commentCount"/>
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="life.drift.movie.model.Movie">
+        <result column="CONTENT" jdbcType="CLOB" property="content"/>
+    </resultMap>
+    <!-- 查询正在上映的电影 -->
+    <select id="selectShowedMovie" parameterType="map" resultMap="BaseResultMap">
+        select *
+        from MOVIE
+        where date_sub(curdate(), INTERVAL 30 DAY) = date(SHOW_TIME)
+    </select>
+
+</mapper>

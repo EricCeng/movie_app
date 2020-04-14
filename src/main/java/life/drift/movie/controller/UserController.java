@@ -2,7 +2,6 @@ package life.drift.movie.controller;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import life.drift.movie.common.Const;
-import life.drift.movie.exception.ResponseErrorCode;
 import life.drift.movie.model.User;
 import life.drift.movie.service.IUserService;
 import life.drift.movie.utils.ServerResponse;
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 // 控制器下所有方法的返回值都是 Json
-@RequestMapping(value = "/portal")
 public class UserController {
 
     @Autowired
@@ -43,12 +41,12 @@ public class UserController {
     public ServerResponse updateInfo(User user, HttpSession session) {
         //判断用户登录
         UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
-        if (userInfo == null) {
-            return ServerResponse.createServerResponseByFail(ResponseErrorCode.NOT_LOGIN.getCode(), ResponseErrorCode.NOT_LOGIN.getMsg());
-        }
-        if(user == null){
-            return ServerResponse.createServerResponseByFail(ResponseErrorCode.NOT_LOGIN.getCode(), ResponseErrorCode.NOT_LOGIN.getMsg());
-        }
+//        if (userInfo == null) {
+//            return ServerResponse.createServerResponseByFail(ResponseErrorCode.NOT_LOGIN.getCode(), ResponseErrorCode.NOT_LOGIN.getMsg());
+//        }
+//        if(user == null){
+//            return ServerResponse.createServerResponseByFail(ResponseErrorCode.NOT_LOGIN.getCode(), ResponseErrorCode.NOT_LOGIN.getMsg());
+//        }
 
         user.setId(userInfo.getId());
 
