@@ -2,6 +2,8 @@ package life.drift.movie.controller;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import life.drift.movie.common.Const;
+import life.drift.movie.mapper.WishMovieExtMapper;
+import life.drift.movie.model.Movie;
 import life.drift.movie.model.User;
 import life.drift.movie.service.IUserService;
 import life.drift.movie.utils.ServerResponse;
@@ -55,6 +57,13 @@ public class UserController {
         if(serverResponse.isSuccess()){
             session.setAttribute(Const.CURRENT_USER, serverResponse.getData());
         }
+        return serverResponse;
+    }
+
+    //查看 想看的电影 列表
+    @RequestMapping(value = "user/wishmovie")
+    public ServerResponse findWishMovie(Movie movie){
+        ServerResponse serverResponse = userService.findWishMovie(movie);
         return serverResponse;
     }
 }

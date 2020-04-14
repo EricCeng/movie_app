@@ -2,15 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="life.drift.movie.mapper.UserExtMapper">
     <resultMap id="BaseResultMap" type="life.drift.movie.model.User">
-        <id column="ID" jdbcType="BIGINT" property="id"/>
-        <result column="USERNAME" jdbcType="VARCHAR" property="username"/>
-        <result column="PASSWORD" jdbcType="VARCHAR" property="password"/>
-        <result column="EMAIL" jdbcType="VARCHAR" property="email"/>
-        <result column="PHONE" jdbcType="VARCHAR" property="phone"/>
-        <result column="GMT_CREATE" jdbcType="TIMESTAMP" property="gmtCreate"/>
-        <result column="GMT_MODIFIED" jdbcType="TIMESTAMP" property="gmtModified"/>
-        <result column="GENDER" jdbcType="VARCHAR" property="gender"/>
-        <result column="AVATAR_URL" jdbcType="VARCHAR" property="avatarUrl"/>
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="USERNAME" jdbcType="VARCHAR" property="username" />
+        <result column="PASSWORD" jdbcType="VARCHAR" property="password" />
+        <result column="EMAIL" jdbcType="VARCHAR" property="email" />
+        <result column="PHONE" jdbcType="VARCHAR" property="phone" />
+        <result column="GMT_CREATE" jdbcType="TIMESTAMP" property="gmtCreate" />
+        <result column="GMT_MODIFIED" jdbcType="TIMESTAMP" property="gmtModified" />
+        <result column="GENDER" jdbcType="VARCHAR" property="gender" />
+        <result column="AVATAR_URL" jdbcType="VARCHAR" property="avatarUrl" />
     </resultMap>
 
     <!--判断用户名是否存在-->

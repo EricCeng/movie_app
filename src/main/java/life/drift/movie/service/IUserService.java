@@ -1,5 +1,6 @@
 package life.drift.movie.service;
 
+import life.drift.movie.model.Movie;
 import life.drift.movie.model.User;
 import life.drift.movie.utils.ServerResponse;
 
@@ -12,4 +13,6 @@ public interface IUserService {
 
     //修改信息
     ServerResponse updateInfoLogic(User user);
+
+    ServerResponse findWishMovie(Movie movie);
 }

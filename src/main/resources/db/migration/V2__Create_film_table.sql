@@ -12,7 +12,7 @@ create table film
     show_time date not null,
     movie_time bigint not null,
     comment_count bigint default 0,
-    constraint movie_pk
+    constraint film_pk
         primary key (id)
 );
 

@@ -1,17 +1,29 @@
 package life.drift.movie.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import life.drift.movie.exception.ResponseErrorCode;
 import life.drift.movie.mapper.UserExtMapper;
 import life.drift.movie.mapper.UserMapper;
+import life.drift.movie.mapper.WishMovieExtMapper;
+import life.drift.movie.mapper.WishMovieMapper;
+import life.drift.movie.model.Movie;
 import life.drift.movie.model.User;
+import life.drift.movie.model.WishMovie;
+import life.drift.movie.service.IMovieService;
 import life.drift.movie.service.IUserService;
 import life.drift.movie.utils.DateUtil;
 import life.drift.movie.utils.MD5Util;
 import life.drift.movie.utils.ServerResponse;
+import life.drift.movie.vo.MovieVO;
 import life.drift.movie.vo.UserVO;
+import life.drift.movie.vo.WishMovieVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -21,6 +33,15 @@ public class UserService implements IUserService {
 
     @Autowired
     private UserExtMapper userExtMapper;
+
+    @Autowired
+    private IMovieService movieService;
+
+    @Autowired
+    private WishMovieMapper wishMovieMapper;
+
+    @Autowired
+    private WishMovieExtMapper wishMovieExtMapper;
 
     //登录接口实现
     @Override
@@ -52,7 +73,7 @@ public class UserService implements IUserService {
         return ServerResponse.createServerResponseBySuccess(convert(user));
     }
 
-    private UserVO convert(User user){
+    private UserVO convert(User user) {
         UserVO userVO = new UserVO();
         userVO.setId(user.getId());
         userVO.setUsername(user.getUsername());
@@ -142,6 +163,43 @@ public class UserService implements IUserService {
         UserVO userVO = convert(updateUser);
 
         return ServerResponse.createServerResponseBySuccess(userVO);
+    }
+
+    @Override
+    public ServerResponse findWishMovie(Movie movie) {
+
+        WishMovieVO wishMovieVO = getWishMovieVO();
+
+        return ServerResponse.createServerResponseBySuccess(wishMovieVO);
+    }
+
+    public WishMovieVO getWishMovieVO() {
+        WishMovieVO wishMovieVO = new WishMovieVO();
+        List<WishMovie> wishMovieList = wishMovieExtMapper.selectAll();
+
+        for (WishMovie wishMovie : wishMovieList) {
+            wishMovieVO.setId(wishMovie.getId());
+            wishMovieVO.setUserId(wishMovie.getUserId());
+            wishMovieVO.setAddTime(DateUtil.date2String(wishMovie.getAddTime()));
+            wishMovieVO.setUpdateTime(DateUtil.date2String(wishMovie.getUpdateTime()));
+            wishMovieVO.setIsWanted(wishMovie.getIsWanted());
+
+            //查询电影其他信息
+            ServerResponse serverResponse = movieService.selectMovieById(wishMovie.getMovieId());
+            MovieVO movieVO = (MovieVO) serverResponse.getData();
+
+            wishMovieVO.setMovieId(wishMovie.getMovieId());
+            wishMovieVO.setMovieName(movieVO.getMovieName());
+            wishMovieVO.setMovieAvatar(movieVO.getMovieAvatar());
+            wishMovieVO.setDirector(movieVO.getDirector());
+            wishMovieVO.setActor(movieVO.getActor());
+            wishMovieVO.setCountry(movieVO.getCountry());
+            wishMovieVO.setScore(movieVO.getScore());
+            wishMovieVO.setCategory(movieVO.getCategory());
+            wishMovieVO.setShowTime(movieVO.getShowTime());
+
+        }
+        return wishMovieVO;
     }
 
 }

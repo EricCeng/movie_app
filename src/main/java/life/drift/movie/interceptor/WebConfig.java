@@ -19,10 +19,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //注册拦截器
+        List<String> includeUrl = new ArrayList<>();
+        includeUrl.add("/user/**");
+        includeUrl.add("/movie/collectwish/**");
+
         List<String> excludeUrl = new ArrayList<>();
         excludeUrl.add("/user/login");
         excludeUrl.add("/user/register");
-        registry.addInterceptor(loginCheckInterceptor).addPathPatterns("/user/**").excludePathPatterns(excludeUrl);
+        registry.addInterceptor(loginCheckInterceptor).addPathPatterns(includeUrl).excludePathPatterns(excludeUrl);
     }
 
 

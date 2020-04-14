@@ -76,7 +76,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.15</version>
+            <version>5.1.47</version>
             <scope>runtime</scope>
         </dependency>
         <!-- Lombok -->
@@ -109,6 +109,12 @@
             <artifactId>joda-time</artifactId>
             <version>2.10.5</version>
         </dependency>
+        <!-- 分页插件 pagehelper-->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.2.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -135,7 +141,7 @@
                 <!--                    </dependency>-->
                 <!--                </dependencies>-->
                 <configuration>
-                    <url>jdbc:mysql://localhost:3306/movie?serverTimezone=UTC</url>
+                    <url>jdbc:mysql://localhost:3306/movie?useSSL=false</url>
                     <user>root</user>
                     <password>123456</password>
                 </configuration>
@@ -143,7 +149,7 @@
                     <dependency>
                         <groupId>mysql</groupId>
                         <artifactId>mysql-connector-java</artifactId>
-                        <version>8.0.15</version>
+                        <version>5.1.47</version>
                         <scope>runtime</scope>
                     </dependency>
                 </dependencies>
@@ -163,7 +169,7 @@
                     <dependency>
                         <groupId>mysql</groupId>
                         <artifactId>mysql-connector-java</artifactId>
-                        <version>8.0.15</version>
+                        <version>5.1.47</version>
                         <scope>runtime</scope>
                     </dependency>
                 </dependencies>
