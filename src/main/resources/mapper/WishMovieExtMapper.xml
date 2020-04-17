@@ -2,38 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="life.drift.movie.mapper.WishMovieExtMapper">
     <resultMap id="BaseResultMap" type="life.drift.movie.model.WishMovie">
-        <id column="id" jdbcType="BIGINT" property="id" />
-        <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
-        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-        <result column="is_wanted" jdbcType="INTEGER" property="isWanted" />
-        <result column="user_id" jdbcType="BIGINT" property="userId" />
-        <result column="movie_id" jdbcType="BIGINT" property="movieId" />
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="add_time" jdbcType="TIMESTAMP" property="addTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="is_wanted" jdbcType="INTEGER" property="isWanted"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="movie_id" jdbcType="BIGINT" property="movieId"/>
     </resultMap>
     <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="life.drift.movie.model.Movie">
         <result column="CONTENT" jdbcType="CLOB" property="content"/>
     </resultMap>
 
     <!-- 添加想看的电影 -->
-    <update id="updateByPrimaryKey" parameterType="map">
-        update wish_movie
-        set
-            is_wanted = #{isWanted,jdbcType=INTEGER},
-            update_time = now()
-        where movie_id = #{movieId,jdbcType=BIGINT}
-    </update>
+    <!--    <update id="updateByPrimaryKey" parameterType="map">-->
+    <!--        update wish_movie-->
+    <!--        set is_wanted   = #{isWanted,jdbcType=INTEGER},-->
+    <!--            update_time = now()-->
+    <!--        where movie_id = #{movieId,jdbcType=BIGINT}-->
+    <!--    </update>-->
 
+    <!-- 添加想看的电影 -->
     <insert id="insert" parameterType="life.drift.movie.model.WishMovie">
         insert into wish_movie (id, add_time, update_time,
-        is_wanted, user_id, movie_id
-        )
+                                is_wanted, user_id, movie_id)
         values (#{id,jdbcType=BIGINT}, now(), now(),
-        1, #{userId,jdbcType=BIGINT}, #{movieId,jdbcType=BIGINT}
-        )
+                1, #{userId,jdbcType=BIGINT}, #{movieId,jdbcType=BIGINT})
     </insert>
 
-    <select id="selectAll" parameterType="life.drift.movie.model.WishMovie" resultMap="BaseResultMap">
+    <!-- 查看想看的电影列表 -->
+    <select id="selectAll" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select *
         from wish_movie
+        where user_id = #{userId,jdbcType=BIGINT}
+        order by add_time desc
     </select>
 
 </mapper>

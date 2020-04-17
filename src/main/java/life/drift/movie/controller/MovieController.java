@@ -48,4 +48,21 @@ public class MovieController {
         ServerResponse serverResponse = movieService.collectWishMovie(movieId, userVO.getId());
         return serverResponse;
     }
+
+    //写影评
+    @RequestMapping(value = "movie/add_review/{movieId}")
+    public ServerResponse addReview(@PathVariable("movieId") Long movieId,
+                                    HttpSession session,
+                                    @RequestParam("reviewContent") String reviewContent) {
+        UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
+        ServerResponse serverResponse = movieService.addReview(movieId, userInfo.getId(), reviewContent);
+        return serverResponse;
+    }
+
+    //查看电影相关影评
+    @RequestMapping(value = "movie/review/{movieId}")
+    public ServerResponse findReview(@PathVariable("movieId") Long movieId) {
+        ServerResponse serverResponse = movieService.selectReviewByMovieId(movieId);
+        return serverResponse;
+    }
 }

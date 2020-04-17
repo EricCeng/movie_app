@@ -18,4 +18,10 @@ public interface IMovieService {
 
     //添加 想看的电影
     ServerResponse collectWishMovie(Long movieId, Long userId);
+
+    //写影评
+    ServerResponse addReview(Long movieId, Long userId, String reviewContent);
+
+    //查看 电影相关影评
+    ServerResponse selectReviewByMovieId(Long movieId);
 }

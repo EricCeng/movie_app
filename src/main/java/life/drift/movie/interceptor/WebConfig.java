@@ -22,6 +22,8 @@ public class WebConfig implements WebMvcConfigurer {
         List<String> includeUrl = new ArrayList<>();
         includeUrl.add("/user/**");
         includeUrl.add("/movie/collectwish/**");
+        includeUrl.add("/post/**");
+        includeUrl.add("/movie/add_review/**");
 
         List<String> excludeUrl = new ArrayList<>();
         excludeUrl.add("/user/login");

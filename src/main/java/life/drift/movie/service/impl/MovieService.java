@@ -4,20 +4,22 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import life.drift.movie.common.IsWantedCheckEnum;
 import life.drift.movie.exception.ResponseErrorCode;
-import life.drift.movie.mapper.MovieExtMapper;
-import life.drift.movie.mapper.MovieMapper;
-import life.drift.movie.mapper.WishMovieExtMapper;
+import life.drift.movie.mapper.*;
 import life.drift.movie.model.Movie;
+import life.drift.movie.model.Review;
 import life.drift.movie.model.WishMovie;
 import life.drift.movie.service.IMovieService;
+import life.drift.movie.service.IUserService;
 import life.drift.movie.utils.DateUtil;
 import life.drift.movie.utils.ServerResponse;
 import life.drift.movie.vo.MovieVO;
-import org.apache.commons.lang3.StringUtils;
+import life.drift.movie.vo.ReviewListVO;
+import life.drift.movie.vo.ReviewVO;
+import life.drift.movie.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.plugin.services.WIExplorerBrowserService;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,12 @@ public class MovieService implements IMovieService {
 
     @Autowired
     private WishMovieExtMapper wishMovieExtMapper;
+
+    @Autowired
+    private ReviewExtMapper reviewExtMapper;
+
+    @Autowired
+    private IUserService userService;
 
     @Override
     public ServerResponse selectShowedMovie(Movie movie, Integer pageNum, Integer pageSize) {
@@ -67,6 +75,7 @@ public class MovieService implements IMovieService {
         return ServerResponse.createServerResponseBySuccess(pageInfo);
     }
 
+    //查看电影信息
     @Override
     public ServerResponse selectMovieById(Long id) {
         if (id == null) {
@@ -114,6 +123,62 @@ public class MovieService implements IMovieService {
         }
 
         return ServerResponse.createServerResponseBySuccess();
+    }
+
+    //写影评
+    @Override
+    public ServerResponse addReview(Long movieId, Long userId, String reviewContent) {
+        Review review = new Review();
+        review.setMovieId(movieId);
+        review.setUserId(userId);
+        review.setReviewContent(reviewContent);
+        int result = reviewExtMapper.insert(review);
+        if (result <= 0) {
+            return ServerResponse.createServerResponseByFail(ResponseErrorCode.ADD_FAIL.getCode(), ResponseErrorCode.ADD_FAIL.getMsg());
+        }
+
+        return ServerResponse.createServerResponseBySuccess();
+    }
+
+    //查看 电影相关影评
+    @Override
+    public ServerResponse selectReviewByMovieId(Long movieId) {
+        ReviewListVO allReview = getAllReview(movieId);
+        return ServerResponse.createServerResponseBySuccess(allReview);
+    }
+
+    public ReviewListVO getAllReview(Long movieId) {
+        ReviewListVO reviewListVO = new ReviewListVO();
+        List<Review> reviewList = reviewExtMapper.selectReviewByMovieId(movieId);
+
+        List<ReviewVO> reviewVOList = new ArrayList();
+
+        for (Review review : reviewList) {
+
+            ReviewVO reviewVO = new ReviewVO();
+
+            reviewVO.setId(review.getId());
+            reviewVO.setMovieId(review.getMovieId());
+            reviewVO.setIsSelected(review.getIsSelected());
+            reviewVO.setReviewContent(review.getReviewContent());
+            reviewVO.setReviewScore(review.getReviewScore());
+            reviewVO.setCreateTime(DateUtil.date2String(review.getCreateTime()));
+            reviewVO.setUpdateTime(DateUtil.date2String(review.getUpdateTime()));
+            reviewVO.setCommentCount(review.getCommentCount());
+            reviewVO.setLikeCount(review.getLikeCount());
+
+            ServerResponse serverResponse = userService.selectByUserId(review.getUserId());
+            UserVO userVO = (UserVO) serverResponse.getData();
+
+            reviewVO.setUserId(review.getUserId());
+            reviewVO.setUserName(userVO.getUsername());
+            reviewVO.setUserAvatar(userVO.getAvatarUrl());
+
+            reviewVOList.add(reviewVO);
+        }
+
+        reviewListVO.setReviewVOList(reviewVOList);
+        return reviewListVO;
     }
 
     private MovieVO convert(Movie movie) {

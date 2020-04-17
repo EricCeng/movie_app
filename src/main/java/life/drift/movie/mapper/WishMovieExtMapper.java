@@ -10,5 +10,5 @@ public interface WishMovieExtMapper {
 //    Integer collectWishMovie(@Param("movieId") Long movieId);
     int insert(WishMovie record);
 
-    List<WishMovie> selectAll();
+    List<WishMovie> selectAll(@Param("userId") Long userId);
 }

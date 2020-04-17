@@ -7,6 +7,7 @@ import life.drift.movie.model.Movie;
 import life.drift.movie.model.User;
 import life.drift.movie.service.IUserService;
 import life.drift.movie.utils.ServerResponse;
+import life.drift.movie.vo.PostVO;
 import life.drift.movie.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -54,16 +55,41 @@ public class UserController {
 
         ServerResponse serverResponse = userService.updateInfoLogic(user);
 
-        if(serverResponse.isSuccess()){
+        if (serverResponse.isSuccess()) {
             session.setAttribute(Const.CURRENT_USER, serverResponse.getData());
         }
         return serverResponse;
     }
 
+    //查看个人信息
+    @RequestMapping(value = "user/{userId}")
+    public ServerResponse selectByUserId(HttpSession session) {
+        UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
+        ServerResponse serverResponse = userService.selectByUserId(userInfo.getId());
+        return serverResponse;
+    }
+
     //查看 想看的电影 列表
     @RequestMapping(value = "user/wishmovie")
-    public ServerResponse findWishMovie(Movie movie){
-        ServerResponse serverResponse = userService.findWishMovie(movie);
+    public ServerResponse findWishMovie(HttpSession session) {
+        UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
+        ServerResponse serverResponse = userService.findWishMovie(userInfo.getId());
+        return serverResponse;
+    }
+
+    //查看 我的动态
+    @RequestMapping(value = "user/mypost")
+    public ServerResponse findMyPost(HttpSession session) {
+        UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
+        ServerResponse myPost = userService.findMyPost(userInfo.getId());
+        return myPost;
+    }
+
+    //查看 我的影评
+    @RequestMapping(value = "user/myreview")
+    public ServerResponse findMyReview(HttpSession session) {
+        UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
+        ServerResponse serverResponse = userService.selectReviewByUserId(userInfo.getId());
         return serverResponse;
     }
 }

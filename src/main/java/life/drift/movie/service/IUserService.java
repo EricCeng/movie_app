@@ -14,5 +14,15 @@ public interface IUserService {
     //修改信息
     ServerResponse updateInfoLogic(User user);
 
-    ServerResponse findWishMovie(Movie movie);
+    //查询用户信息
+    ServerResponse selectByUserId(Long userId);
+
+    //查看想看的电影列表
+    ServerResponse findWishMovie(Long userId);
+
+    //查看 我的动态
+    ServerResponse findMyPost(Long userId);
+
+    //查看 我的影评
+    ServerResponse selectReviewByUserId(Long userId);
 }

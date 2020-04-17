@@ -33,6 +33,8 @@
         <table tableName="user" domainObjectName="User" ></table>
         <table tableName="film" domainObjectName="Movie" ></table>
         <table tableName="wish_movie" domainObjectName="WishMovie" ></table>
+        <table tableName="post" domainObjectName="Post" ></table>
+        <table tableName="review" domainObjectName="Review" ></table>
 
     </context>
 </generatorConfiguration>

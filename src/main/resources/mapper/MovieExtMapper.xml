@@ -8,7 +8,7 @@
         <result column="director" jdbcType="VARCHAR" property="director" />
         <result column="actor" jdbcType="VARCHAR" property="actor" />
         <result column="country" jdbcType="VARCHAR" property="country" />
-        <result column="score" jdbcType="VARCHAR" property="score" />
+        <result column="score" jdbcType="DOUBLE" property="score" />
         <result column="category" jdbcType="VARCHAR" property="category" />
         <result column="show_time" jdbcType="DATE" property="showTime" />
         <result column="movie_time" jdbcType="BIGINT" property="movieTime" />
@@ -50,11 +50,11 @@
     </select>
 
     <!-- 添加想看的电影 -->
-    <update id="updateByPrimaryKey" parameterType="life.drift.movie.model.User">
-        update film
-        set
-            is_wanted = #{isWanted,jdbcType=INTEGER}
-        where ID = #{user.id,jdbcType=BIGINT}
-    </update>
+<!--    <update id="updateByPrimaryKey" parameterType="life.drift.movie.model.User">-->
+<!--        update film-->
+<!--        set-->
+<!--            is_wanted = #{isWanted,jdbcType=INTEGER}-->
+<!--        where ID = #{user.id,jdbcType=BIGINT}-->
+<!--    </update>-->
 
 </mapper>
