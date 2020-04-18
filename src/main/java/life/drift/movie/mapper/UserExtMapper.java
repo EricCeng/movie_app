@@ -5,6 +5,11 @@ import org.apache.ibatis.annotations.Param;
 
 public interface UserExtMapper {
     /**
+     * 注册用户
+     */
+    Integer insert(User record);
+
+    /**
      * 判断用户名是否存在
      */
     Integer findByUsername(@Param("username") String username);

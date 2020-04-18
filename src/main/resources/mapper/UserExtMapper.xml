@@ -13,6 +13,18 @@
         <result column="AVATAR_URL" jdbcType="VARCHAR" property="avatarUrl" />
     </resultMap>
 
+    <!-- 注册用户 -->
+    <insert id="insert" parameterType="life.drift.movie.model.User">
+        insert into user (id, USERNAME, PASSWORD,
+        EMAIL, PHONE, GMT_CREATE,
+        GMT_MODIFIED, GENDER, AVATAR_URL
+        )
+        values (#{id,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+        #{email,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, now(),
+        now(), #{gender,jdbcType=VARCHAR}, #{avatarUrl,jdbcType=VARCHAR}
+        )
+    </insert>
+
     <!--判断用户名是否存在-->
     <select id="findByUsername" parameterType="string" resultType="int">
         select count(*)

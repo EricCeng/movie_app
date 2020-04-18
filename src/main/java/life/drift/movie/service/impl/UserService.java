@@ -31,9 +31,6 @@ public class UserService implements IUserService {
     private IMovieService movieService;
 
     @Autowired
-    private WishMovieMapper wishMovieMapper;
-
-    @Autowired
     private WishMovieExtMapper wishMovieExtMapper;
 
     @Autowired
@@ -139,7 +136,7 @@ public class UserService implements IUserService {
         //密码加密
         user.setPassword(MD5Util.getMD5Code(user.getPassword()));
 
-        Integer result = userMapper.insert(user);
+        Integer result = userExtMapper.insert(user);
         if (result == 0) {
             //注册失败
             return ServerResponse.createServerResponseByFail(ResponseErrorCode.REGISTER_FAIL.getCode(), ResponseErrorCode.REGISTER_FAIL.getMsg());
