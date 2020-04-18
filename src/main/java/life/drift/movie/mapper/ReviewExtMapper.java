@@ -1,5 +1,6 @@
 package life.drift.movie.mapper;
 
+import life.drift.movie.model.Movie;
 import life.drift.movie.model.Review;
 import life.drift.movie.model.ReviewExample;
 import life.drift.movie.model.WishMovie;
@@ -16,4 +17,7 @@ public interface ReviewExtMapper {
 
     //添加影评
     int insert(Review record);
+
+    //查看精选影评
+    List<Review> findSelectedReview();
 }

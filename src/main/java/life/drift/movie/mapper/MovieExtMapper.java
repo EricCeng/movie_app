@@ -12,4 +12,7 @@ public interface MovieExtMapper {
 
     //搜索电影
     List<Movie> searchMovie(@Param("keyword") String keyword);
+
+    //电影榜单
+    List<Movie> movieChart();
 }

@@ -181,6 +181,20 @@ public class MovieService implements IMovieService {
         return reviewListVO;
     }
 
+    //查看电影榜单 Top 250
+    @Override
+    public ServerResponse findMovieChart() {
+        List<Movie> movieChart = movieExtMapper.movieChart();
+        List<MovieVO> movieVOList = new ArrayList<>();
+
+        for (Movie movie : movieChart) {
+            MovieVO convert = convert(movie);
+            movieVOList.add(convert);
+        }
+
+        return ServerResponse.createServerResponseBySuccess(movieVOList);
+    }
+
     private MovieVO convert(Movie movie) {
         MovieVO movieVO = new MovieVO();
         movieVO.setId(movie.getId());

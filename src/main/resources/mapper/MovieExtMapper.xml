@@ -2,19 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="life.drift.movie.mapper.MovieExtMapper">
     <resultMap id="BaseResultMap" type="life.drift.movie.model.Movie">
-        <id column="id" jdbcType="BIGINT" property="id" />
-        <result column="movie_name" jdbcType="VARCHAR" property="movieName" />
-        <result column="movie_avatar" jdbcType="VARCHAR" property="movieAvatar" />
-        <result column="director" jdbcType="VARCHAR" property="director" />
-        <result column="actor" jdbcType="VARCHAR" property="actor" />
-        <result column="country" jdbcType="VARCHAR" property="country" />
-        <result column="score" jdbcType="DOUBLE" property="score" />
-        <result column="category" jdbcType="VARCHAR" property="category" />
-        <result column="show_time" jdbcType="DATE" property="showTime" />
-        <result column="movie_time" jdbcType="BIGINT" property="movieTime" />
-        <result column="comment_count" jdbcType="BIGINT" property="commentCount" />
-        <result column="movie_create" jdbcType="TIMESTAMP" property="movieCreate" />
-        <result column="movie_modified" jdbcType="TIMESTAMP" property="movieModified" />
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="movie_name" jdbcType="VARCHAR" property="movieName"/>
+        <result column="movie_avatar" jdbcType="VARCHAR" property="movieAvatar"/>
+        <result column="director" jdbcType="VARCHAR" property="director"/>
+        <result column="actor" jdbcType="VARCHAR" property="actor"/>
+        <result column="country" jdbcType="VARCHAR" property="country"/>
+        <result column="score" jdbcType="DOUBLE" property="score"/>
+        <result column="category" jdbcType="VARCHAR" property="category"/>
+        <result column="show_time" jdbcType="DATE" property="showTime"/>
+        <result column="movie_time" jdbcType="BIGINT" property="movieTime"/>
+        <result column="comment_count" jdbcType="BIGINT" property="commentCount"/>
+        <result column="movie_create" jdbcType="TIMESTAMP" property="movieCreate"/>
+        <result column="movie_modified" jdbcType="TIMESTAMP" property="movieModified"/>
     </resultMap>
     <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="life.drift.movie.model.Movie">
         <result column="CONTENT" jdbcType="CLOB" property="content"/>
@@ -23,8 +23,8 @@
     <select id="selectShowedMovie" parameterType="map" resultMap="BaseResultMap">
         select *
         from film
-        where
-              datediff(now(), show_time) <![CDATA[<= ]]> 30 and show_time <![CDATA[<= ]]> now()
+        where datediff(now(), show_time) <![CDATA[<= ]]> 30
+          and show_time <![CDATA[<= ]]> now()
         order by show_time desc
     </select>
 
@@ -32,8 +32,7 @@
     <select id="selectUnShowedMovie" parameterType="map" resultMap="BaseResultMap">
         select *
         from film
-        where
-            show_time <![CDATA[> ]]> now()
+        where show_time <![CDATA[> ]]> now()
         order by show_time desc
     </select>
 
@@ -49,12 +48,20 @@
         order by show_time desc
     </select>
 
+    <!-- 电影榜单 -->
+    <select id="movieChart" parameterType="map" resultMap="BaseResultMap">
+        select *
+        from film
+        order by score desc
+        limit 250
+    </select>
+
     <!-- 添加想看的电影 -->
-<!--    <update id="updateByPrimaryKey" parameterType="life.drift.movie.model.User">-->
-<!--        update film-->
-<!--        set-->
-<!--            is_wanted = #{isWanted,jdbcType=INTEGER}-->
-<!--        where ID = #{user.id,jdbcType=BIGINT}-->
-<!--    </update>-->
+    <!--    <update id="updateByPrimaryKey" parameterType="life.drift.movie.model.User">-->
+    <!--        update film-->
+    <!--        set-->
+    <!--            is_wanted = #{isWanted,jdbcType=INTEGER}-->
+    <!--        where ID = #{user.id,jdbcType=BIGINT}-->
+    <!--    </update>-->
 
 </mapper>

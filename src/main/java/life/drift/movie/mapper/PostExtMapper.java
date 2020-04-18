@@ -9,4 +9,7 @@ public interface PostExtMapper {
     List<Post> selectAll();
 
     List<Post> selectMyPost(Long userId);
+
+    //查看精选动态
+    List<Post> findSelectedPost();
 }

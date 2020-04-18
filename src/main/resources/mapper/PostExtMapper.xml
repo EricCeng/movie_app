@@ -48,4 +48,12 @@
         order by create_time desc
     </select>
 
+    <!-- 查看 精选动态 -->
+    <select id="findSelectedPost" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select *
+        from post
+        where is_selected = 1
+        order by create_time desc
+    </select>
+
 </mapper>

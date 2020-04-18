@@ -50,4 +50,12 @@
                 #{reviewContent,jdbcType=LONGVARCHAR})
     </insert>
 
+    <!-- 查看 精选影评 -->
+    <select id="findSelectedReview" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select *
+        from review
+        where is_selected = 1
+        order by create_time desc
+    </select>
+
 </mapper>

@@ -24,4 +24,8 @@ public interface IMovieService {
 
     //查看 电影相关影评
     ServerResponse selectReviewByMovieId(Long movieId);
+
+    //查看 电影榜单
+    ServerResponse findMovieChart();
+
 }
