@@ -19,6 +19,7 @@ public enum ResponseErrorCode {
     MOVIE_NOT_FOUND(15, "抱歉！您所查找的电影不存在哦！"),
     ADD_FAIL(16, "抱歉！添加过程中出现故障了，请再次尝试！"),
     POST_FAIL(17, "抱歉！发布过程中出现故障了，请再次尝试！"),
+    DELETE_FAIL(18, "抱歉！删除过程中出现故障了，请再次尝试！"),
 
     ;
 

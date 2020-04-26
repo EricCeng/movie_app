@@ -39,6 +39,9 @@ public class UserService implements IUserService {
     @Autowired
     private ReviewExtMapper reviewExtMapper;
 
+    @Autowired
+    private ReviewMapper reviewMapper;
+
     //登录接口实现
     @Override
     public ServerResponse loginLogic(String username, String password) {
@@ -185,11 +188,31 @@ public class UserService implements IUserService {
         return ServerResponse.createServerResponseBySuccess(myPost);
     }
 
+    //删除 我的动态
+    @Override
+    public ServerResponse deletePostById(Long postId, Long userId) {
+        int i = postExtMapper.deleteMyPost(postId, userId);
+        if (i <= 0) {
+            return ServerResponse.createServerResponseByFail(ResponseErrorCode.DELETE_FAIL.getCode(), ResponseErrorCode.DELETE_FAIL.getMsg());
+        }
+        return ServerResponse.createServerResponseBySuccess();
+    }
+
     //查看 我的影评
     @Override
     public ServerResponse selectReviewByUserId(Long userId) {
         ReviewListVO myReview = getMyReview(userId);
         return ServerResponse.createServerResponseBySuccess(myReview);
+    }
+
+    //删除我的影评
+    @Override
+    public ServerResponse deleteReviewById(Long reviewId, Long userId) {
+        int i = reviewExtMapper.deleteMyReview(reviewId, userId);
+        if (i <= 0) {
+            return ServerResponse.createServerResponseByFail(ResponseErrorCode.DELETE_FAIL.getCode(), ResponseErrorCode.DELETE_FAIL.getMsg());
+        }
+        return ServerResponse.createServerResponseBySuccess();
     }
 
     public ReviewListVO getMyReview(Long userId) {

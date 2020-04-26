@@ -20,4 +20,7 @@ public interface ReviewExtMapper {
 
     //查看精选影评
     List<Review> findSelectedReview();
+
+    //删除影评
+    int deleteMyReview(@Param("id") Long id, @Param("userId") Long userId);
 }

@@ -2,6 +2,7 @@ package life.drift.movie.controller;
 
 import life.drift.movie.common.Const;
 import life.drift.movie.model.Movie;
+import life.drift.movie.model.User;
 import life.drift.movie.service.IMovieService;
 import life.drift.movie.utils.ServerResponse;
 import life.drift.movie.vo.UserVO;

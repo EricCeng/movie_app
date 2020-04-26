@@ -58,4 +58,10 @@
         order by create_time desc
     </select>
 
+    <!-- 删除我的影评 -->
+    <delete id="deleteMyReview" parameterType="java.lang.Long">
+        delete from review
+        where id = #{id,jdbcType=BIGINT} and user_id = #{userId,jdbcType=BIGINT}
+    </delete>
+
 </mapper>

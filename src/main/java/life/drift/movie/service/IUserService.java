@@ -23,6 +23,15 @@ public interface IUserService {
     //查看 我的动态
     ServerResponse findMyPost(Long userId);
 
+    //删除动态
+    ServerResponse deletePostById(Long postId, Long userId);
+
     //查看 我的影评
     ServerResponse selectReviewByUserId(Long userId);
+
+    //删除影评
+    ServerResponse deleteReviewById(Long reviewId, Long userId);
+
+//    //查看单条影评
+//    ServerResponse selectReviewById(Long postId);
 }
