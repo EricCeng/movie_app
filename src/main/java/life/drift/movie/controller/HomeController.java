@@ -1,8 +1,6 @@
 package life.drift.movie.controller;
 
-import javafx.geometry.Pos;
 import life.drift.movie.common.Const;
-import life.drift.movie.model.Post;
 import life.drift.movie.service.IHomeService;
 import life.drift.movie.service.IMovieService;
 import life.drift.movie.utils.ServerResponse;
@@ -22,6 +20,7 @@ public class HomeController {
     @Autowired
     private IHomeService homeService;
 
+    //搜索
     @RequestMapping({"/search"})
     public ServerResponse searchMovie(@RequestParam(name = "keyword", required = false) String keyword,
                                       @RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum,
@@ -31,6 +30,7 @@ public class HomeController {
         return serverResponse;
     }
 
+    //发布动态
     @RequestMapping({"/post/insert"})
     public ServerResponse insert(@RequestParam("postContent") String postContent,
                                  HttpSession session) {
@@ -39,6 +39,7 @@ public class HomeController {
         return insert;
     }
 
+    //查看所有动态
     @RequestMapping({"/", "/index"})
     public ServerResponse selectAllPost() {
         ServerResponse post = homeService.findPost();
