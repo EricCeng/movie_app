@@ -56,6 +56,13 @@
         limit 250
     </select>
 
+    <!-- 影评数-->
+    <update id="incCommentCount" parameterType="life.drift.movie.model.Movie">
+        update film
+        set comment_count = comment_count + #{commentCount,jdbcType=BIGINT}
+        where id = #{id}
+    </update>
+
     <!-- 添加想看的电影 -->
     <!--    <update id="updateByPrimaryKey" parameterType="life.drift.movie.model.User">-->
     <!--        update film-->

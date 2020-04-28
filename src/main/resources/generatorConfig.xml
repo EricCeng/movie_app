@@ -35,6 +35,7 @@
         <table tableName="wish_movie" domainObjectName="WishMovie" ></table>
         <table tableName="post" domainObjectName="Post" ></table>
         <table tableName="review" domainObjectName="Review" ></table>
+        <table tableName="comment" domainObjectName="Comment" ></table>
 
     </context>
 </generatorConfiguration>

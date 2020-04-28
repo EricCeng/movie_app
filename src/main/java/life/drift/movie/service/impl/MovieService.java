@@ -131,10 +131,16 @@ public class MovieService implements IMovieService {
         review.setMovieId(movieId);
         review.setUserId(userId);
         review.setReviewContent(reviewContent);
+        review.setCommentCount(0L);
+        review.setLikeCount(0L);
         int result = reviewExtMapper.insert(review);
         if (result <= 0) {
             return ServerResponse.createServerResponseByFail(ResponseErrorCode.ADD_FAIL.getCode(), ResponseErrorCode.ADD_FAIL.getMsg());
         }
+
+        Movie movie = movieMapper.selectByPrimaryKey(movieId);
+        movie.setCommentCount(1L);
+        movieExtMapper.incCommentCount(movie);
 
         return ServerResponse.createServerResponseBySuccess();
     }

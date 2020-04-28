@@ -38,6 +38,8 @@ public class HomeService implements IHomeService {
         Post post = new Post();
         post.setUserId(userId);
         post.setPostContent(postContent);
+        post.setCommentCount(0L);
+        post.setLikeCount(0L);
 
         int result = postExtMapper.insert(post);
         if (result < 0) {

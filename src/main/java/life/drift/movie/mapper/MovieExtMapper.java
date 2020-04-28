@@ -15,4 +15,7 @@ public interface MovieExtMapper {
 
     //电影榜单
     List<Movie> movieChart();
+
+    //影评数
+    int incCommentCount(Movie record);
 }

@@ -62,4 +62,11 @@
         where id = #{id,jdbcType=BIGINT} and user_id = #{userId,jdbcType=BIGINT}
     </delete>
 
+    <!-- 评论数-->
+    <update id="incCommentCount" parameterType="life.drift.movie.model.Post">
+        update post
+        set comment_count = comment_count + #{commentCount,jdbcType=BIGINT}
+        where id = #{id}
+    </update>
+
 </mapper>

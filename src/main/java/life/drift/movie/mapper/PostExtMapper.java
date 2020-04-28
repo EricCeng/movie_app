@@ -16,4 +16,7 @@ public interface PostExtMapper {
 
     //删除动态
     int deleteMyPost(@Param("id") Long id, @Param("userId") Long userId);
+
+    //评论数
+    int incCommentCount(Post record);
 }

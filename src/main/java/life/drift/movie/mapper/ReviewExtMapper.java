@@ -1,9 +1,6 @@
 package life.drift.movie.mapper;
 
-import life.drift.movie.model.Movie;
-import life.drift.movie.model.Review;
-import life.drift.movie.model.ReviewExample;
-import life.drift.movie.model.WishMovie;
+import life.drift.movie.model.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -23,4 +20,7 @@ public interface ReviewExtMapper {
 
     //删除影评
     int deleteMyReview(@Param("id") Long id, @Param("userId") Long userId);
+
+    //评论数
+    int incCommentCount(Review record);
 }
