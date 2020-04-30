@@ -63,12 +63,4 @@
         where id = #{id}
     </update>
 
-    <!-- 添加想看的电影 -->
-    <!--    <update id="updateByPrimaryKey" parameterType="life.drift.movie.model.User">-->
-    <!--        update film-->
-    <!--        set-->
-    <!--            is_wanted = #{isWanted,jdbcType=INTEGER}-->
-    <!--        where ID = #{user.id,jdbcType=BIGINT}-->
-    <!--    </update>-->
-
 </mapper>

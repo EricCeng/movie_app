@@ -14,6 +14,7 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="is_selected" jdbcType="INTEGER" property="isSelected"/>
+        <result column="creator" jdbcType="BIGINT" property="creator" />
     </resultMap>
     <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="life.drift.movie.model.Post">
         <!--
@@ -27,34 +28,13 @@
     <insert id="insert" parameterType="life.drift.movie.model.Post">
         insert into post (id, user_id, comment_count,
                           like_count, create_time, update_time,
-                          is_selected, post_content)
+                          is_selected, creator, post_content
+        )
         values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{commentCount,jdbcType=BIGINT},
                 #{likeCount,jdbcType=BIGINT}, now(), now(),
-                #{isSelected,jdbcType=INTEGER}, #{postContent,jdbcType=LONGVARCHAR})
+                #{isSelected,jdbcType=INTEGER}, #{creator,jdbcType=BIGINT}, #{postContent,jdbcType=LONGVARCHAR}
+               )
     </insert>
-
-    <!-- 查看所有动态 -->
-    <select id="selectAll" parameterType="life.drift.movie.model.Post" resultMap="BaseResultMap">
-        select *
-        from post
-        order by create_time desc
-    </select>
-
-    <!-- 查看 我的动态 -->
-    <select id="selectMyPost" parameterType="java.lang.Long" resultMap="BaseResultMap">
-        select *
-        from post
-        where user_id = #{userId,jdbcType=BIGINT}
-        order by create_time desc
-    </select>
-
-    <!-- 查看 精选动态 -->
-    <select id="findSelectedPost" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select *
-        from post
-        where is_selected = 1
-        order by create_time desc
-    </select>
 
     <!-- 删除我的动态 -->
     <delete id="deleteMyPost" parameterType="java.lang.Long">

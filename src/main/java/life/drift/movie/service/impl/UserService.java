@@ -12,11 +12,16 @@ import life.drift.movie.utils.MD5Util;
 import life.drift.movie.utils.ServerResponse;
 import life.drift.movie.vo.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -41,6 +46,15 @@ public class UserService implements IUserService {
 
     @Autowired
     private ReviewMapper reviewMapper;
+
+    @Autowired
+    private PostMapper postMapper;
+
+    @Autowired
+    private MovieMapper movieMapper;
+
+    @Autowired
+    private WishMovieMapper wishMovieMapper;
 
     //登录接口实现
     @Override
@@ -74,15 +88,9 @@ public class UserService implements IUserService {
 
     private UserVO convert(User user) {
         UserVO userVO = new UserVO();
-        userVO.setId(user.getId());
-        userVO.setUsername(user.getUsername());
-        userVO.setEmail(user.getEmail());
-        userVO.setPhone(user.getPhone());
+        BeanUtils.copyProperties(user, userVO);
         userVO.setGmtCreate(DateUtil.date2String(user.getGmtCreate()));
         userVO.setGmtModified(DateUtil.date2String(user.getGmtModified()));
-        userVO.setGender(user.getGender());
-        userVO.setAvatarUrl(user.getAvatarUrl());
-
         return userVO;
     }
 
@@ -176,16 +184,67 @@ public class UserService implements IUserService {
     @Override
     public ServerResponse findWishMovie(Long userId) {
 
-        WishMovieListVO wishMovieVO = getWishMovieVO(userId);
+        WishMovieExample wishMovieExample = new WishMovieExample();
+        wishMovieExample.createCriteria()
+                .andUserIdEqualTo(userId);
+        wishMovieExample.setOrderByClause("add_time desc");
 
-        return ServerResponse.createServerResponseBySuccess(wishMovieVO);
+        List<WishMovie> wishMovieList = wishMovieMapper.selectByExample(wishMovieExample);
+
+        Set<Long> targetMovie = wishMovieList.stream().map(wishMovie -> wishMovie.getMovieId()).collect(Collectors.toSet());
+        List<Long> movieIds = new ArrayList<>();
+        movieIds.addAll(targetMovie);
+
+        MovieExample movieExample = new MovieExample();
+        movieExample.createCriteria()
+                .andIdIn(movieIds);
+        List<Movie> movies = movieMapper.selectByExample(movieExample);
+        Map<Long, Movie> movieMap = movies.stream().collect(Collectors.toMap(movie -> movie.getId(), movie -> movie));
+
+        List<WishMovieVO> wishMovieVOList = wishMovieList.stream().map(wishMovie -> {
+            WishMovieVO wishMovieVO = new WishMovieVO();
+            BeanUtils.copyProperties(wishMovie, wishMovieVO);
+
+            wishMovieVO.setAddTime(DateUtil.date2String(wishMovie.getAddTime()));
+            wishMovieVO.setUpdateTime(DateUtil.date2String(wishMovie.getUpdateTime()));
+
+            wishMovieVO.setMovieName(movieMap.get(wishMovie.getMovieId()).getMovieName());
+            wishMovieVO.setMovieAvatar(movieMap.get(wishMovie.getMovieId()).getMovieAvatar());
+            wishMovieVO.setDirector(movieMap.get(wishMovie.getMovieId()).getDirector());
+            wishMovieVO.setActor(movieMap.get(wishMovie.getMovieId()).getActor());
+            wishMovieVO.setCountry(movieMap.get(wishMovie.getMovieId()).getCountry());
+            wishMovieVO.setScore(movieMap.get(wishMovie.getMovieId()).getScore());
+            wishMovieVO.setCategory(movieMap.get(wishMovie.getMovieId()).getCategory());
+            wishMovieVO.setShowTime(DateUtil.date2String(movieMap.get(wishMovie.getMovieId()).getShowTime()));
+
+            return wishMovieVO;
+        }).collect(Collectors.toList());
+
+        return ServerResponse.createServerResponseBySuccess(wishMovieVOList);
     }
 
     //查看 我的动态
     @Override
     public ServerResponse findMyPost(Long userId) {
-        PostListVO myPost = getMyPost(userId);
-        return ServerResponse.createServerResponseBySuccess(myPost);
+        PostExample postExample = new PostExample();
+        postExample.createCriteria()
+                .andCreatorEqualTo(userId);
+        postExample.setOrderByClause("create_time desc");
+
+        List<Post> postList = postMapper.selectByExampleWithBLOBs(postExample);
+
+        User user = userMapper.selectByPrimaryKey(userId);
+
+        List<PostVO> postVOList = postList.stream().map(post -> {
+            PostVO postVO = new PostVO();
+            BeanUtils.copyProperties(post, postVO);
+            postVO.setCreateTime(DateUtil.date2String(post.getCreateTime()));
+            postVO.setUpdateTime(DateUtil.date2String(post.getUpdateTime()));
+            postVO.setUserName(user.getUsername());
+            postVO.setUserAvatar(user.getAvatarUrl());
+            return postVO;
+        }).collect(Collectors.toList());
+        return ServerResponse.createServerResponseBySuccess(postVOList);
     }
 
     //删除 我的动态
@@ -201,8 +260,40 @@ public class UserService implements IUserService {
     //查看 我的影评
     @Override
     public ServerResponse selectReviewByUserId(Long userId) {
-        ReviewListVO myReview = getMyReview(userId);
-        return ServerResponse.createServerResponseBySuccess(myReview);
+        ReviewExample reviewExample = new ReviewExample();
+        reviewExample.createCriteria()
+                .andCreatorEqualTo(userId);
+        reviewExample.setOrderByClause("create_time desc");
+        List<Review> reviewList = reviewMapper.selectByExampleWithBLOBs(reviewExample);
+
+        Set<Long> targetMovie = reviewList.stream().map(review -> review.getMovieId()).collect(Collectors.toSet());
+        List<Long> movieIds = new ArrayList<>();
+        movieIds.addAll(targetMovie);
+
+        MovieExample movieExample = new MovieExample();
+        movieExample.createCriteria()
+                .andIdIn(movieIds);
+        List<Movie> movies = movieMapper.selectByExample(movieExample);
+        Map<Long, Movie> movieMap = movies.stream().collect(Collectors.toMap(movie -> movie.getId(), movie -> movie));
+
+        List<ReviewVO> reviewVOList = reviewList.stream().map(review -> {
+            ReviewVO reviewVO = new ReviewVO();
+            BeanUtils.copyProperties(review, reviewVO);
+            reviewVO.setCreateTime(DateUtil.date2String(review.getCreateTime()));
+            reviewVO.setUpdateTime(DateUtil.date2String(review.getUpdateTime()));
+
+            reviewVO.setMovieName(movieMap.get(review.getMovieId()).getMovieName());
+            reviewVO.setMovieAvatar(movieMap.get(review.getMovieId()).getMovieAvatar());
+            reviewVO.setDirector(movieMap.get(review.getMovieId()).getDirector());
+            reviewVO.setActor(movieMap.get(review.getMovieId()).getActor());
+            reviewVO.setCountry(movieMap.get(review.getMovieId()).getCountry());
+            reviewVO.setScore(movieMap.get(review.getMovieId()).getScore());
+            reviewVO.setCategory(movieMap.get(review.getMovieId()).getCategory());
+            reviewVO.setShowTime(DateUtil.date2String(movieMap.get(review.getMovieId()).getShowTime()));
+
+            return reviewVO;
+        }).collect(Collectors.toList());
+        return ServerResponse.createServerResponseBySuccess(reviewVOList);
     }
 
     //删除我的影评
@@ -214,117 +305,4 @@ public class UserService implements IUserService {
         }
         return ServerResponse.createServerResponseBySuccess();
     }
-
-    public ReviewListVO getMyReview(Long userId) {
-        ReviewListVO reviewListVO = new ReviewListVO();
-        List<Review> reviewList = reviewExtMapper.selectReviewByUserId(userId);
-
-        List<ReviewVO> reviewVOList = new ArrayList();
-
-        for (Review review : reviewList) {
-
-            ReviewVO reviewVO = new ReviewVO();
-
-            reviewVO.setId(review.getId());
-            reviewVO.setUserId(review.getUserId());
-            reviewVO.setIsSelected(review.getIsSelected());
-            reviewVO.setReviewContent(review.getReviewContent());
-            reviewVO.setReviewScore(review.getReviewScore());
-            reviewVO.setCreateTime(DateUtil.date2String(review.getCreateTime()));
-            reviewVO.setUpdateTime(DateUtil.date2String(review.getUpdateTime()));
-            reviewVO.setCommentCount(review.getCommentCount());
-            reviewVO.setLikeCount(review.getLikeCount());
-
-            ServerResponse serverResponse = movieService.selectMovieById(review.getMovieId());
-            MovieVO movieVO = (MovieVO) serverResponse.getData();
-
-            reviewVO.setMovieId(review.getMovieId());
-            reviewVO.setMovieName(movieVO.getMovieName());
-            reviewVO.setMovieAvatar(movieVO.getMovieAvatar());
-            reviewVO.setDirector(movieVO.getDirector());
-            reviewVO.setActor(movieVO.getActor());
-            reviewVO.setCountry(movieVO.getCountry());
-            reviewVO.setScore(movieVO.getScore());
-            reviewVO.setCategory(movieVO.getCategory());
-            reviewVO.setShowTime(movieVO.getShowTime());
-
-            reviewVOList.add(reviewVO);
-        }
-
-        reviewListVO.setReviewVOList(reviewVOList);
-
-        return reviewListVO;
-    }
-
-    public WishMovieListVO getWishMovieVO(Long userId) {
-        WishMovieListVO wishMovieListVO = new WishMovieListVO();
-        List<WishMovie> wishMovieList = wishMovieExtMapper.selectAll(userId);
-
-        List<WishMovieVO> wishMovieVOList = new ArrayList();
-
-        for (WishMovie wishMovie : wishMovieList) {
-
-            WishMovieVO wishMovieVO = new WishMovieVO();
-
-            wishMovieVO.setId(wishMovie.getId());
-            wishMovieVO.setUserId(wishMovie.getUserId());
-            wishMovieVO.setAddTime(DateUtil.date2String(wishMovie.getAddTime()));
-            wishMovieVO.setUpdateTime(DateUtil.date2String(wishMovie.getUpdateTime()));
-            wishMovieVO.setIsWanted(wishMovie.getIsWanted());
-
-            //查询电影其他信息
-            ServerResponse serverResponse = movieService.selectMovieById(wishMovie.getMovieId());
-            MovieVO movieVO = (MovieVO) serverResponse.getData();
-
-            wishMovieVO.setMovieId(wishMovie.getMovieId());
-            wishMovieVO.setMovieName(movieVO.getMovieName());
-            wishMovieVO.setMovieAvatar(movieVO.getMovieAvatar());
-            wishMovieVO.setDirector(movieVO.getDirector());
-            wishMovieVO.setActor(movieVO.getActor());
-            wishMovieVO.setCountry(movieVO.getCountry());
-            wishMovieVO.setScore(movieVO.getScore());
-            wishMovieVO.setCategory(movieVO.getCategory());
-            wishMovieVO.setShowTime(movieVO.getShowTime());
-
-            wishMovieVOList.add(wishMovieVO);
-
-        }
-
-        wishMovieListVO.setWishMovieVOList(wishMovieVOList);
-        return wishMovieListVO;
-    }
-
-    public PostListVO getMyPost(Long userId) {
-        PostListVO postListVO = new PostListVO();
-        List<Post> postList = postExtMapper.selectMyPost(userId);
-
-        List<PostVO> postVOList = new ArrayList();
-
-        for (Post post : postList) {
-
-            PostVO postVO = new PostVO();
-
-            postVO.setId(post.getId());
-            postVO.setPostContent(post.getPostContent());
-            postVO.setCommentCount(post.getCommentCount());
-            postVO.setLikeCount(post.getLikeCount());
-            postVO.setCreateTime(DateUtil.date2String(post.getCreateTime()));
-            postVO.setUpdateTime(DateUtil.date2String(post.getUpdateTime()));
-            postVO.setIsSelected(post.getIsSelected());
-
-            ServerResponse serverResponse = selectByUserId(post.getUserId());
-            UserVO userVO = (UserVO) serverResponse.getData();
-
-            postVO.setUserId(post.getUserId());
-            postVO.setUserName(userVO.getUsername());
-            postVO.setUserAvatar(userVO.getAvatarUrl());
-
-            postVOList.add(postVO);
-
-        }
-        postListVO.setPostVOList(postVOList);
-
-        return postListVO;
-    }
-
 }

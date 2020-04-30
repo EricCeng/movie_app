@@ -1,11 +1,14 @@
 package life.drift.movie.controller;
 
+import life.drift.movie.common.CommentTypeEnum;
 import life.drift.movie.common.Const;
+import life.drift.movie.service.ICommentService;
 import life.drift.movie.service.IHomeService;
 import life.drift.movie.service.IMovieService;
 import life.drift.movie.utils.ServerResponse;
 import life.drift.movie.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +22,9 @@ public class HomeController {
 
     @Autowired
     private IHomeService homeService;
+
+    @Autowired
+    private ICommentService commentService;
 
     //搜索
     @RequestMapping({"/search"})
@@ -44,5 +50,12 @@ public class HomeController {
     public ServerResponse selectAllPost() {
         ServerResponse post = homeService.findPost();
         return post;
+    }
+
+    //查看 动态评论
+    @RequestMapping(value = "/comment/post/{id}")
+    public ServerResponse selectPostComment(@PathVariable("id") Long id){
+        ServerResponse serverResponse = commentService.selectComment(id, CommentTypeEnum.POST);
+        return serverResponse;
     }
 }

@@ -12,6 +12,7 @@ public class PostVO {
     private String createTime;
     private String updateTime;
     private Integer isSelected;
+    private Long creator;
 
     private String userName;
     private String userAvatar;

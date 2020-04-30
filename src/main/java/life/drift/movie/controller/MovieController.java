@@ -1,11 +1,15 @@
 package life.drift.movie.controller;
 
+import life.drift.movie.common.CommentTypeEnum;
 import life.drift.movie.common.Const;
 import life.drift.movie.model.Movie;
+import life.drift.movie.model.Review;
 import life.drift.movie.model.User;
+import life.drift.movie.service.ICommentService;
 import life.drift.movie.service.IMovieService;
 import life.drift.movie.utils.ServerResponse;
 import life.drift.movie.vo.UserVO;
+import org.apache.commons.lang3.builder.EqualsExclude;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +19,9 @@ import javax.servlet.http.HttpSession;
 public class MovieController {
     @Autowired
     private IMovieService movieService;
+
+    @Autowired
+    private ICommentService commentService;
 
     //正在上映的电影（近 30 天）
     @RequestMapping(value = "movie/showed")
@@ -56,7 +63,13 @@ public class MovieController {
                                     HttpSession session,
                                     @RequestParam("reviewContent") String reviewContent) {
         UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
-        ServerResponse serverResponse = movieService.addReview(movieId, userInfo.getId(), reviewContent);
+
+        Review review = new Review();
+        review.setMovieId(movieId);
+        review.setReviewContent(reviewContent);
+        review.setCreator(userInfo.getId());
+        review.setUserId(userInfo.getId());
+        ServerResponse serverResponse = movieService.addReview(review);
         return serverResponse;
     }
 
@@ -64,6 +77,13 @@ public class MovieController {
     @RequestMapping(value = "movie/review/{movieId}")
     public ServerResponse findReview(@PathVariable("movieId") Long movieId) {
         ServerResponse serverResponse = movieService.selectReviewByMovieId(movieId);
+        return serverResponse;
+    }
+
+    //查看 影评评论
+    @RequestMapping(value = "/comment/review/{id}")
+    public ServerResponse selectPostComment(@PathVariable("id") Long id){
+        ServerResponse serverResponse = commentService.selectComment(id, CommentTypeEnum.REVIEW);
         return serverResponse;
     }
 }

@@ -14,27 +14,11 @@
     </resultMap>
 
     <!-- 添加想看的电影 -->
-    <!--    <update id="updateByPrimaryKey" parameterType="map">-->
-    <!--        update wish_movie-->
-    <!--        set is_wanted   = #{isWanted,jdbcType=INTEGER},-->
-    <!--            update_time = now()-->
-    <!--        where movie_id = #{movieId,jdbcType=BIGINT}-->
-    <!--    </update>-->
-
-    <!-- 添加想看的电影 -->
     <insert id="insert" parameterType="life.drift.movie.model.WishMovie">
         insert into wish_movie (id, add_time, update_time,
                                 is_wanted, user_id, movie_id)
         values (#{id,jdbcType=BIGINT}, now(), now(),
                 1, #{userId,jdbcType=BIGINT}, #{movieId,jdbcType=BIGINT})
     </insert>
-
-    <!-- 查看想看的电影列表 -->
-    <select id="selectAll" parameterType="java.lang.Long" resultMap="BaseResultMap">
-        select *
-        from wish_movie
-        where user_id = #{userId,jdbcType=BIGINT}
-        order by add_time desc
-    </select>
 
 </mapper>

@@ -14,6 +14,7 @@ public class ReviewVO {
     private Long commentCount;
     private Long likeCount;
     private Double reviewScore;
+    private Long creator;
 
     private String userName;
     private String userAvatar;

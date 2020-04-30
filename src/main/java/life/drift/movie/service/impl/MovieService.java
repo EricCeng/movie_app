@@ -5,22 +5,22 @@ import com.github.pagehelper.PageInfo;
 import life.drift.movie.common.IsWantedCheckEnum;
 import life.drift.movie.exception.ResponseErrorCode;
 import life.drift.movie.mapper.*;
-import life.drift.movie.model.Movie;
-import life.drift.movie.model.Review;
-import life.drift.movie.model.WishMovie;
+import life.drift.movie.model.*;
 import life.drift.movie.service.IMovieService;
 import life.drift.movie.service.IUserService;
 import life.drift.movie.utils.DateUtil;
 import life.drift.movie.utils.ServerResponse;
 import life.drift.movie.vo.MovieVO;
-import life.drift.movie.vo.ReviewListVO;
 import life.drift.movie.vo.ReviewVO;
-import life.drift.movie.vo.UserVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieService implements IMovieService {
@@ -39,17 +39,21 @@ public class MovieService implements IMovieService {
     @Autowired
     private IUserService userService;
 
+    @Autowired
+    private ReviewMapper reviewMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
     public ServerResponse selectShowedMovie(Movie movie, Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         //最近 30 天上映的电影
         List<Movie> showedMovies = movieExtMapper.selectShowedMovie(movie);
-        List<MovieVO> movieVOList = new ArrayList<>();
-
-        for (Movie showedMovie : showedMovies) {
+        List<MovieVO> movieVOList = showedMovies.stream().map(showedMovie -> {
             MovieVO movieVO = convert(showedMovie);
-            movieVOList.add(movieVO);
-        }
+            return movieVO;
+        }).collect(Collectors.toList());
 
         PageInfo pageInfo = new PageInfo(showedMovies);
         pageInfo.setList(movieVOList);
@@ -61,12 +65,10 @@ public class MovieService implements IMovieService {
         PageHelper.startPage(pageNum, pageSize);
 
         List<Movie> unShowedMovies = movieExtMapper.selectUnShowedMovie(movie);
-        List<MovieVO> movieVOList = new ArrayList<>();
-
-        for (Movie unShowedMovie : unShowedMovies) {
-            MovieVO movieVO = convert(unShowedMovie);
-            movieVOList.add(movieVO);
-        }
+        List<MovieVO> movieVOList = unShowedMovies.stream().map(unshowedMovie -> {
+            MovieVO movieVO = convert(unshowedMovie);
+            return movieVO;
+        }).collect(Collectors.toList());
 
         PageInfo pageInfo = new PageInfo(unShowedMovies);
         pageInfo.setList(movieVOList);
@@ -93,12 +95,11 @@ public class MovieService implements IMovieService {
         PageHelper.startPage(pageNum, pageSize);
 
         List<Movie> movieList = movieExtMapper.searchMovie(keyword);
-        List<MovieVO> movieVOList = new ArrayList<>();
-
-        for (Movie movie : movieList) {
+        List<MovieVO> movieVOList = movieList.stream().map(movie -> {
             MovieVO movieVO = convert(movie);
-            movieVOList.add(movieVO);
-        }
+            return movieVO;
+        }).collect(Collectors.toList());
+
 
         PageInfo pageInfo = new PageInfo(movieList);
         pageInfo.setList(movieVOList);
@@ -126,11 +127,7 @@ public class MovieService implements IMovieService {
 
     //写影评
     @Override
-    public ServerResponse addReview(Long movieId, Long userId, String reviewContent) {
-        Review review = new Review();
-        review.setMovieId(movieId);
-        review.setUserId(userId);
-        review.setReviewContent(reviewContent);
+    public ServerResponse addReview(Review review) {
         review.setCommentCount(0L);
         review.setLikeCount(0L);
         int result = reviewExtMapper.insert(review);
@@ -138,7 +135,7 @@ public class MovieService implements IMovieService {
             return ServerResponse.createServerResponseByFail(ResponseErrorCode.ADD_FAIL.getCode(), ResponseErrorCode.ADD_FAIL.getMsg());
         }
 
-        Movie movie = movieMapper.selectByPrimaryKey(movieId);
+        Movie movie = movieMapper.selectByPrimaryKey(review.getMovieId());
         movie.setCommentCount(1L);
         movieExtMapper.incCommentCount(movie);
 
@@ -148,74 +145,63 @@ public class MovieService implements IMovieService {
     //查看 电影相关影评
     @Override
     public ServerResponse selectReviewByMovieId(Long movieId) {
-        ReviewListVO allReview = getAllReview(movieId);
-        return ServerResponse.createServerResponseBySuccess(allReview);
-    }
+        ReviewExample reviewExample = new ReviewExample();
+        reviewExample.createCriteria()
+                .andMovieIdEqualTo(movieId);
+        reviewExample.setOrderByClause("update_time desc");
+        List<Review> reviewList = reviewMapper.selectByExampleWithBLOBs(reviewExample);
 
-    public ReviewListVO getAllReview(Long movieId) {
-        ReviewListVO reviewListVO = new ReviewListVO();
-        List<Review> reviewList = reviewExtMapper.selectReviewByMovieId(movieId);
+        if (reviewList.size() == 0){
+            return null;
+        }
+        Set<Long> creators = reviewList.stream().map(review -> review.getCreator()).collect(Collectors.toSet());
+        List<Long> userIds = new ArrayList<>();
+        userIds.addAll(creators);
 
-        List<ReviewVO> reviewVOList = new ArrayList();
+        UserExample userExample = new UserExample();
+        userExample.createCriteria()
+                .andIdIn(userIds);
+        List<User> users = userMapper.selectByExample(userExample);
+        Map<Long, User> userMap = users.stream().collect(Collectors.toMap(user -> user.getId(), user -> user));
 
-        for (Review review : reviewList) {
-
+        List<ReviewVO> reviewVOList = reviewList.stream().map(review -> {
             ReviewVO reviewVO = new ReviewVO();
-
-            reviewVO.setId(review.getId());
-            reviewVO.setMovieId(review.getMovieId());
-            reviewVO.setIsSelected(review.getIsSelected());
-            reviewVO.setReviewContent(review.getReviewContent());
-            reviewVO.setReviewScore(review.getReviewScore());
+            BeanUtils.copyProperties(review, reviewVO);
             reviewVO.setCreateTime(DateUtil.date2String(review.getCreateTime()));
             reviewVO.setUpdateTime(DateUtil.date2String(review.getUpdateTime()));
-            reviewVO.setCommentCount(review.getCommentCount());
-            reviewVO.setLikeCount(review.getLikeCount());
+            reviewVO.setUserName(userMap.get(review.getCreator()).getUsername());
+            reviewVO.setUserAvatar(userMap.get(review.getCreator()).getAvatarUrl());
+            return reviewVO;
+        }).collect(Collectors.toList());
 
-            ServerResponse serverResponse = userService.selectByUserId(review.getUserId());
-            UserVO userVO = (UserVO) serverResponse.getData();
-
-            reviewVO.setUserId(review.getUserId());
-            reviewVO.setUserName(userVO.getUsername());
-            reviewVO.setUserAvatar(userVO.getAvatarUrl());
-
-            reviewVOList.add(reviewVO);
-        }
-
-        reviewListVO.setReviewVOList(reviewVOList);
-        return reviewListVO;
+        return ServerResponse.createServerResponseBySuccess(reviewVOList);
     }
 
     //查看电影榜单 Top 250
     @Override
     public ServerResponse findMovieChart() {
         List<Movie> movieChart = movieExtMapper.movieChart();
-        List<MovieVO> movieVOList = new ArrayList<>();
 
-        for (Movie movie : movieChart) {
-            MovieVO convert = convert(movie);
-            movieVOList.add(convert);
-        }
+        List<MovieVO> movieVOList = movieChart.stream().map(movie -> {
+            MovieVO movieVO = new MovieVO();
+            BeanUtils.copyProperties(movie, movieVO);
+            movieVO.setMovieCreate(DateUtil.date2String(movie.getMovieCreate()));
+            movieVO.setMovieModified(DateUtil.date2String(movie.getMovieModified()));
+            movieVO.setShowTime(DateUtil.date2String(movie.getShowTime()));
+
+            return movieVO;
+        }).collect(Collectors.toList());
 
         return ServerResponse.createServerResponseBySuccess(movieVOList);
     }
 
     private MovieVO convert(Movie movie) {
         MovieVO movieVO = new MovieVO();
-        movieVO.setId(movie.getId());
-        movieVO.setMovieName(movie.getMovieName());
-        movieVO.setMovieAvatar(movie.getMovieAvatar());
-        movieVO.setDirector(movie.getDirector());
-        movieVO.setActor(movie.getActor());
-        movieVO.setMovieContent(movie.getMovieContent());
-        movieVO.setCountry(movie.getCountry());
-        movieVO.setScore(movie.getScore());
-        movieVO.setCategory(movie.getCategory());
+        BeanUtils.copyProperties(movie, movieVO);
+
         movieVO.setMovieCreate(DateUtil.date2String(movie.getMovieCreate()));
         movieVO.setMovieModified(DateUtil.date2String(movie.getMovieModified()));
         movieVO.setShowTime(DateUtil.date2String(movie.getShowTime()));
-        movieVO.setMovieTime(movie.getMovieTime());
-        movieVO.setCommentCount(movie.getCommentCount());
 
         return movieVO;
     }

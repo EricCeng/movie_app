@@ -1,16 +1,25 @@
 package life.drift.movie.service.impl;
 
+import ch.qos.logback.core.joran.util.beans.BeanUtil;
 import life.drift.movie.common.CommentTypeEnum;
 import life.drift.movie.exception.ResponseErrorCode;
 import life.drift.movie.mapper.*;
 import life.drift.movie.model.*;
 import life.drift.movie.service.ICommentService;
+import life.drift.movie.utils.DateUtil;
 import life.drift.movie.utils.ServerResponse;
 import life.drift.movie.vo.CommentVO;
 import life.drift.movie.vo.UserVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService implements ICommentService {
@@ -32,6 +41,9 @@ public class CommentService implements ICommentService {
 
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     //插入评论
     @Transactional
@@ -129,5 +141,46 @@ public class CommentService implements ICommentService {
 
 
         return ServerResponse.createServerResponseBySuccess();
+    }
+
+    //查看评论
+    @Override
+    public ServerResponse selectComment(Long id, CommentTypeEnum type) {
+        CommentExample commentExample = new CommentExample();
+        commentExample.createCriteria()
+                .andParentIdEqualTo(id)
+                .andTypeEqualTo(type.getType());
+        commentExample.setOrderByClause("gmt_create desc");
+
+        List<Comment> commentList = commentMapper.selectByExample(commentExample);
+
+        if (commentList.size() == 0) {
+            return null;
+        }
+
+        Set<Long> commentators = commentList.stream().map(comment -> comment.getCommentator()).collect(Collectors.toSet());
+        List<Long> userIds = new ArrayList<>();
+        userIds.addAll(commentators);
+
+        UserExample userExample = new UserExample();
+        userExample.createCriteria()
+                .andIdIn(userIds);
+        List<User> users = userMapper.selectByExample(userExample);
+        Map<Long, User> userMap = users.stream().collect(Collectors.toMap(user -> user.getId(), user -> user));
+
+        //转化成 CommentVO
+        List<CommentVO> commentVOList = commentList.stream().map(comment -> {
+                    CommentVO commentVO = new CommentVO();
+                    BeanUtils.copyProperties(comment, commentVO);
+                    commentVO.setGmtCreate(DateUtil.date2String(comment.getGmtCreate()));
+                    commentVO.setGmtModified(DateUtil.date2String(comment.getGmtModified()));
+                    commentVO.setUserName(userMap.get(comment.getCommentator()).getUsername());
+                    commentVO.setUserAvatar(userMap.get(comment.getCommentator()).getAvatarUrl());
+                    return commentVO;
+                }
+        ).collect(Collectors.toList());
+
+        return ServerResponse.createServerResponseBySuccess(commentVOList);
+
     }
 }
