@@ -21,10 +21,13 @@ public interface IMovieService {
     ServerResponse collectWishMovie(Long movieId, Long userId);
 
     //写影评
-    ServerResponse addReview(Review review);
+    ServerResponse addOrUpdateReview(Review review);
 
     //查看 电影相关影评
     ServerResponse selectReviewByMovieId(Long movieId);
+
+    //查看 单条影评内容
+    ServerResponse selectReviewById(Long id);
 
     //查看 电影榜单
     ServerResponse findMovieChart();

@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
         List<String> includeUrl = new ArrayList<>();
         includeUrl.add("/user/**");
         includeUrl.add("/movie/collectwish/**");
-        includeUrl.add("/post/**");
+        includeUrl.add("/post/insert/**");
         includeUrl.add("/movie/add_review/**");
         includeUrl.add("/comment/insert/**");
 

@@ -41,12 +41,6 @@ public class UserController {
     public ServerResponse updateInfo(User user, HttpSession session) {
         //判断用户登录
         UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
-//        if (userInfo == null) {
-//            return ServerResponse.createServerResponseByFail(ResponseErrorCode.NOT_LOGIN.getCode(), ResponseErrorCode.NOT_LOGIN.getMsg());
-//        }
-//        if(user == null){
-//            return ServerResponse.createServerResponseByFail(ResponseErrorCode.NOT_LOGIN.getCode(), ResponseErrorCode.NOT_LOGIN.getMsg());
-//        }
 
         user.setId(userInfo.getId());
 

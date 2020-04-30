@@ -11,7 +11,7 @@
         <result column="comment_count" jdbcType="BIGINT" property="commentCount"/>
         <result column="like_count" jdbcType="BIGINT" property="likeCount"/>
         <result column="review_score" jdbcType="DOUBLE" property="reviewScore"/>
-        <result column="creator" jdbcType="BIGINT" property="creator" />
+        <result column="creator" jdbcType="BIGINT" property="creator"/>
     </resultMap>
     <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="life.drift.movie.model.Review">
 
@@ -32,15 +32,24 @@
 
     <!-- 删除我的影评 -->
     <delete id="deleteMyReview" parameterType="java.lang.Long">
-        delete from review
-        where id = #{id,jdbcType=BIGINT} and user_id = #{userId,jdbcType=BIGINT}
+        delete
+        from review
+        where id = #{id,jdbcType=BIGINT}
+          and user_id = #{userId,jdbcType=BIGINT}
     </delete>
 
     <!-- 评论数-->
     <update id="incCommentCount" parameterType="life.drift.movie.model.Review">
         update review
         set comment_count = comment_count + #{commentCount,jdbcType=BIGINT}
-        where id = #{id}
+        where id = #{id,jdbcType=BIGINT}
     </update>
+
+    <!-- 计算评分 -->
+    <select id="avgScore" parameterType="java.lang.Long" resultType="Double">
+        select avg(review_score)
+        from review
+        where movie_id = #{movieId,jdbcType=BIGINT}
+    </select>
 
 </mapper>

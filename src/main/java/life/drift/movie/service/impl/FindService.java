@@ -41,6 +41,10 @@ public class FindService implements IFindService {
         reviewExample.setOrderByClause("comment_count desc");
         List<Review> reviewList = reviewMapper.selectByExampleWithBLOBs(reviewExample);
 
+        if (reviewList.size() == 0) {
+            return null;
+        }
+
         Set<Long> targetMovie = reviewList.stream().map(review -> review.getMovieId()).collect(Collectors.toSet());
         List<Long> movieIds = new ArrayList<>();
         movieIds.addAll(targetMovie);
@@ -80,6 +84,10 @@ public class FindService implements IFindService {
                 .andIsSelectedEqualTo(1);
         postExample.setOrderByClause("comment_count desc");
         List<Post> postList = postMapper.selectByExampleWithBLOBs(postExample);
+
+        if (postList.size() == 0) {
+            return null;
+        }
 
         Set<Long> targetUser = postList.stream().map(post -> post.getUserId()).collect(Collectors.toSet());
         List<Long> userIds = new ArrayList<>();

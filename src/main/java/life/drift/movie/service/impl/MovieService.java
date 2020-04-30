@@ -37,9 +37,6 @@ public class MovieService implements IMovieService {
     private ReviewExtMapper reviewExtMapper;
 
     @Autowired
-    private IUserService userService;
-
-    @Autowired
     private ReviewMapper reviewMapper;
 
     @Autowired
@@ -79,12 +76,13 @@ public class MovieService implements IMovieService {
     //查看电影信息
     @Override
     public ServerResponse selectMovieById(Long id) {
-        if (id == null) {
+
+        Movie movie = movieMapper.selectByPrimaryKey(id);
+        if (movie == null) {
             return ServerResponse.createServerResponseByFail(ResponseErrorCode.MOVIE_NOT_FOUND.getCode(), ResponseErrorCode.MOVIE_NOT_FOUND.getMsg());
         }
-        Movie selectMovie = movieMapper.selectByPrimaryKey(id);
 
-        MovieVO convert = convert(selectMovie);
+        MovieVO convert = convert(movie);
         return ServerResponse.createServerResponseBySuccess(convert);
     }
 
@@ -95,6 +93,11 @@ public class MovieService implements IMovieService {
         PageHelper.startPage(pageNum, pageSize);
 
         List<Movie> movieList = movieExtMapper.searchMovie(keyword);
+
+        if (movieList.size() == 0) {
+            return ServerResponse.createServerResponseByFail(ResponseErrorCode.MOVIE_NOT_FOUND.getCode(), ResponseErrorCode.MOVIE_NOT_FOUND.getMsg());
+        }
+
         List<MovieVO> movieVOList = movieList.stream().map(movie -> {
             MovieVO movieVO = convert(movie);
             return movieVO;
@@ -127,17 +130,36 @@ public class MovieService implements IMovieService {
 
     //写影评
     @Override
-    public ServerResponse addReview(Review review) {
-        review.setCommentCount(0L);
-        review.setLikeCount(0L);
-        int result = reviewExtMapper.insert(review);
-        if (result <= 0) {
-            return ServerResponse.createServerResponseByFail(ResponseErrorCode.ADD_FAIL.getCode(), ResponseErrorCode.ADD_FAIL.getMsg());
-        }
+    public ServerResponse addOrUpdateReview(Review review) {
 
         Movie movie = movieMapper.selectByPrimaryKey(review.getMovieId());
-        movie.setCommentCount(1L);
-        movieExtMapper.incCommentCount(movie);
+
+        if (review.getId() == null) {
+            review.setCommentCount(0L);
+            review.setLikeCount(0L);
+            int result = reviewExtMapper.insert(review);
+            if (result <= 0) {
+                return ServerResponse.createServerResponseByFail(ResponseErrorCode.ADD_FAIL.getCode(), ResponseErrorCode.ADD_FAIL.getMsg());
+            }
+            movie.setCommentCount(1L);
+            movieExtMapper.incCommentCount(movie);
+        } else {
+            Review updateReview = new Review();
+            updateReview.setReviewContent(review.getReviewContent());
+            updateReview.setReviewScore(review.getReviewScore());
+
+            ReviewExample reviewExample = new ReviewExample();
+            reviewExample.createCriteria()
+                    .andIdEqualTo(review.getId());
+            int i = reviewMapper.updateByExampleSelective(updateReview, reviewExample);
+            if (i == 0) {
+                return ServerResponse.createServerResponseByFail(ResponseErrorCode.UPDATE_FAIL.getCode(), ResponseErrorCode.UPDATE_FAIL.getMsg());
+            }
+        }
+
+        Double avgScore = reviewExtMapper.avgScore(review.getMovieId());
+        movie.setScore(avgScore);
+        movieExtMapper.updateScore(movie);
 
         return ServerResponse.createServerResponseBySuccess();
     }
@@ -151,7 +173,7 @@ public class MovieService implements IMovieService {
         reviewExample.setOrderByClause("update_time desc");
         List<Review> reviewList = reviewMapper.selectByExampleWithBLOBs(reviewExample);
 
-        if (reviewList.size() == 0){
+        if (reviewList.size() == 0) {
             return null;
         }
         Set<Long> creators = reviewList.stream().map(review -> review.getCreator()).collect(Collectors.toSet());
@@ -177,10 +199,34 @@ public class MovieService implements IMovieService {
         return ServerResponse.createServerResponseBySuccess(reviewVOList);
     }
 
+    //查看 单条影评内容
+    @Override
+    public ServerResponse selectReviewById(Long id) {
+        Review review = reviewMapper.selectByPrimaryKey(id);
+        if (review == null) {
+            return ServerResponse.createServerResponseByFail(ResponseErrorCode.REVIEW_NOT_FOUND.getCode(), ResponseErrorCode.REVIEW_NOT_FOUND.getMsg());
+        }
+
+        User user = userMapper.selectByPrimaryKey(review.getCreator());
+
+        ReviewVO reviewVO = new ReviewVO();
+        BeanUtils.copyProperties(review, reviewVO);
+        reviewVO.setCreateTime(DateUtil.date2String(review.getCreateTime()));
+        reviewVO.setUpdateTime(DateUtil.date2String(review.getUpdateTime()));
+        reviewVO.setUserName(user.getUsername());
+        reviewVO.setUserAvatar(user.getAvatarUrl());
+
+        return ServerResponse.createServerResponseBySuccess(reviewVO);
+    }
+
     //查看电影榜单 Top 250
     @Override
     public ServerResponse findMovieChart() {
         List<Movie> movieChart = movieExtMapper.movieChart();
+
+        if (movieChart.size() == 0) {
+            return null;
+        }
 
         List<MovieVO> movieVOList = movieChart.stream().map(movie -> {
             MovieVO movieVO = new MovieVO();
@@ -202,6 +248,7 @@ public class MovieService implements IMovieService {
         movieVO.setMovieCreate(DateUtil.date2String(movie.getMovieCreate()));
         movieVO.setMovieModified(DateUtil.date2String(movie.getMovieModified()));
         movieVO.setShowTime(DateUtil.date2String(movie.getShowTime()));
+
 
         return movieVO;
     }

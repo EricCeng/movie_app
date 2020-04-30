@@ -191,6 +191,10 @@ public class UserService implements IUserService {
 
         List<WishMovie> wishMovieList = wishMovieMapper.selectByExample(wishMovieExample);
 
+        if (wishMovieList.size() == 0) {
+            return null;
+        }
+
         Set<Long> targetMovie = wishMovieList.stream().map(wishMovie -> wishMovie.getMovieId()).collect(Collectors.toSet());
         List<Long> movieIds = new ArrayList<>();
         movieIds.addAll(targetMovie);
@@ -233,6 +237,10 @@ public class UserService implements IUserService {
 
         List<Post> postList = postMapper.selectByExampleWithBLOBs(postExample);
 
+        if (postList.size() == 0) {
+            return null;
+        }
+
         User user = userMapper.selectByPrimaryKey(userId);
 
         List<PostVO> postVOList = postList.stream().map(post -> {
@@ -265,6 +273,10 @@ public class UserService implements IUserService {
                 .andCreatorEqualTo(userId);
         reviewExample.setOrderByClause("create_time desc");
         List<Review> reviewList = reviewMapper.selectByExampleWithBLOBs(reviewExample);
+
+        if (reviewList.size() == 0) {
+            return null;
+        }
 
         Set<Long> targetMovie = reviewList.stream().map(review -> review.getMovieId()).collect(Collectors.toSet());
         List<Long> movieIds = new ArrayList<>();

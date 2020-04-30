@@ -10,4 +10,7 @@ public interface IHomeService {
 
     //查看所有动态
     ServerResponse findPost();
+
+    //查看单条动态信息
+    ServerResponse selectPostById(Long id);
 }

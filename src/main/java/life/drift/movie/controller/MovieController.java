@@ -61,7 +61,10 @@ public class MovieController {
     @RequestMapping(value = "movie/add_review/{movieId}")
     public ServerResponse addReview(@PathVariable("movieId") Long movieId,
                                     HttpSession session,
-                                    @RequestParam("reviewContent") String reviewContent) {
+                                    @RequestParam("reviewContent") String reviewContent,
+                                    @RequestParam("reviewScore") Double reviewScore,
+                                    @RequestParam(value = "id", required = false) Long id) {
+        // “id” 在 修改影评时 需要获取到，若是添加新的影评则不用
         UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
 
         Review review = new Review();
@@ -69,20 +72,29 @@ public class MovieController {
         review.setReviewContent(reviewContent);
         review.setCreator(userInfo.getId());
         review.setUserId(userInfo.getId());
-        ServerResponse serverResponse = movieService.addReview(review);
+        review.setReviewScore(reviewScore);
+        review.setId(id);
+        ServerResponse serverResponse = movieService.addOrUpdateReview(review);
         return serverResponse;
     }
 
     //查看电影相关影评
-    @RequestMapping(value = "movie/review/{movieId}")
+    @RequestMapping(value = "movie/allReview/{movieId}")
     public ServerResponse findReview(@PathVariable("movieId") Long movieId) {
         ServerResponse serverResponse = movieService.selectReviewByMovieId(movieId);
         return serverResponse;
     }
 
+    //查看 单条影评内容
+    @RequestMapping(value = "movie/eachReview/{id}")
+    public ServerResponse selectReviewById(@PathVariable("id") Long id) {
+        ServerResponse serverResponse = movieService.selectReviewById(id);
+        return serverResponse;
+    }
+
     //查看 影评评论
     @RequestMapping(value = "/comment/review/{id}")
-    public ServerResponse selectPostComment(@PathVariable("id") Long id){
+    public ServerResponse selectPostComment(@PathVariable("id") Long id) {
         ServerResponse serverResponse = commentService.selectComment(id, CommentTypeEnum.REVIEW);
         return serverResponse;
     }

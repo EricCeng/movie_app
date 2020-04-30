@@ -54,6 +54,10 @@ public class HomeService implements IHomeService {
         postExample.setOrderByClause("create_time desc");
         List<Post> postList = postMapper.selectByExampleWithBLOBs(postExample);
 
+        if (postList.size() == 0) {
+            return null;
+        }
+
         Set<Long> targetUser = postList.stream().map(post -> post.getUserId()).collect(Collectors.toSet());
         List<Long> userIds = new ArrayList<>();
         userIds.addAll(targetUser);
@@ -74,5 +78,25 @@ public class HomeService implements IHomeService {
             return postVO;
         }).collect(Collectors.toList());
         return ServerResponse.createServerResponseBySuccess(postVOList);
+    }
+
+    //查看单条动态内容
+    @Override
+    public ServerResponse selectPostById(Long id) {
+        Post post = postMapper.selectByPrimaryKey(id);
+
+        if (post == null) {
+            return ServerResponse.createServerResponseByFail(ResponseErrorCode.POST_NOT_FOUND.getCode(), ResponseErrorCode.POST_NOT_FOUND.getMsg());
+        }
+        User user = userMapper.selectByPrimaryKey(post.getUserId());
+
+        PostVO postVO = new PostVO();
+        BeanUtils.copyProperties(post, postVO);
+        postVO.setCreateTime(DateUtil.date2String(post.getCreateTime()));
+        postVO.setUpdateTime(DateUtil.date2String(post.getUpdateTime()));
+        postVO.setUserName(user.getUsername());
+        postVO.setUserAvatar(user.getAvatarUrl());
+
+        return ServerResponse.createServerResponseBySuccess(postVO);
     }
 }

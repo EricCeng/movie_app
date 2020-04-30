@@ -22,5 +22,10 @@ public interface ReviewExtMapper {
     int deleteMyReview(@Param("id") Long id, @Param("userId") Long userId);
 
     //评论数
-    int incCommentCount(Review record);
+    Long incCommentCount(Review record);
+
+    //计算影评数
+
+    //计算评分总和
+    Double avgScore(Long movieId);
 }

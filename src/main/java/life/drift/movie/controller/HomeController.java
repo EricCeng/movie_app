@@ -58,4 +58,11 @@ public class HomeController {
         ServerResponse serverResponse = commentService.selectComment(id, CommentTypeEnum.POST);
         return serverResponse;
     }
+
+    //查看单条动态信息
+    @RequestMapping(value = "/post/{id}")
+    public ServerResponse selectPostById(@PathVariable("id") Long id){
+        ServerResponse serverResponse = homeService.selectPostById(id);
+        return serverResponse;
+    }
 }

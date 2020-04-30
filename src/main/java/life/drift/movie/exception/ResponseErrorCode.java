@@ -15,7 +15,7 @@ public enum ResponseErrorCode {
     EMAIL_EXIST(11, "此邮箱已被注册哦！"),
     REGISTER_FAIL(12, "抱歉！注册过程中出现故障了，请再次尝试！"),
     NOT_LOGIN(13, "抱歉！您还未登录哦！"),
-    UPDATE_FAIL(14, "抱歉！修改信息过程中出现故障了，请再次尝试！"),
+    UPDATE_FAIL(14, "抱歉！修改过程中出现故障了，请再次尝试！"),
     MOVIE_NOT_FOUND(15, "抱歉！您所查找的电影不存在哦！"),
     ADD_FAIL(16, "抱歉！添加过程中出现故障了，请再次尝试！"),
     POST_FAIL(17, "抱歉！发布过程中出现故障了，请再次尝试！"),
@@ -23,8 +23,8 @@ public enum ResponseErrorCode {
     COMMENT_NOT_FOUND(19, "抱歉！此评论不存在，请重新选择！"),
     COMMENT_PARAM_WRONG(20, "抱歉！请您重新选择需要回复的动态、影评或评论哦！"),
     COMMENT_FAIL(21, "抱歉！评论过程中出现故障了，请再次尝试！"),
-    POST_NOT_FOUND(22, "抱歉！此动态不存在，请重新选择！"),
-    REVIEW_NOT_FOUND(23, "抱歉！此影评不存在，请重新选择！"),
+    POST_NOT_FOUND(22, "抱歉！此动态不存在哦，请重新选择！"),
+    REVIEW_NOT_FOUND(23, "抱歉！此影评不存在哦，请重新选择！"),
     CONTENT_IS_EMPTY(24, "抱歉！内容不能为空哦！"),
 
     ;
