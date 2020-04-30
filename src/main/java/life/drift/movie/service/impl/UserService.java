@@ -33,12 +33,6 @@ public class UserService implements IUserService {
     private UserExtMapper userExtMapper;
 
     @Autowired
-    private IMovieService movieService;
-
-    @Autowired
-    private WishMovieExtMapper wishMovieExtMapper;
-
-    @Autowired
     private PostExtMapper postExtMapper;
 
     @Autowired
@@ -55,6 +49,9 @@ public class UserService implements IUserService {
 
     @Autowired
     private WishMovieMapper wishMovieMapper;
+
+    @Autowired
+    private MovieExtMapper movieExtMapper;
 
     //登录接口实现
     @Override
@@ -310,11 +307,17 @@ public class UserService implements IUserService {
 
     //删除我的影评
     @Override
-    public ServerResponse deleteReviewById(Long reviewId, Long userId) {
-        int i = reviewExtMapper.deleteMyReview(reviewId, userId);
+    public ServerResponse deleteReviewById(Review review) {
+        Review review1 = reviewMapper.selectByPrimaryKey(review.getId());
+        int i = reviewMapper.deleteByPrimaryKey(review.getId());
+
         if (i <= 0) {
             return ServerResponse.createServerResponseByFail(ResponseErrorCode.DELETE_FAIL.getCode(), ResponseErrorCode.DELETE_FAIL.getMsg());
         }
+
+        Movie movie = movieMapper.selectByPrimaryKey(review1.getMovieId());
+        movie.setCommentCount(1L);
+        movieExtMapper.decCommentCount(movie);
         return ServerResponse.createServerResponseBySuccess();
     }
 }

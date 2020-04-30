@@ -59,14 +59,13 @@
     <!-- 影评数-->
     <update id="incCommentCount" parameterType="life.drift.movie.model.Movie">
         update film
-        <set>
-            <if test="commentCount != null">
-                comment_count = comment_count + #{commentCount,jdbcType=BIGINT},
-            </if>
-            <if test="score != null">
-                score = #{score,jdbcType=DOUBLE},
-            </if>
-        </set>
+        set comment_count = comment_count + #{commentCount,jdbcType=BIGINT}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="decCommentCount" parameterType="life.drift.movie.model.Movie">
+        update film
+        set comment_count = comment_count - #{commentCount,jdbcType=BIGINT}
         where id = #{id,jdbcType=BIGINT}
     </update>
 

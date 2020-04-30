@@ -2,6 +2,7 @@ package life.drift.movie.controller;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import life.drift.movie.common.Const;
+import life.drift.movie.model.Review;
 import life.drift.movie.model.User;
 import life.drift.movie.service.IUserService;
 import life.drift.movie.utils.ServerResponse;
@@ -98,7 +99,10 @@ public class UserController {
     public ServerResponse deleteReview(@PathVariable("reviewId") Long reviewId,
                                        HttpSession session) {
         UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
-        ServerResponse serverResponse = userService.deleteReviewById(reviewId, userInfo.getId());
+        Review review = new Review();
+        review.setId(reviewId);
+        review.setUserId(userInfo.getId());
+        ServerResponse serverResponse = userService.deleteReviewById(review);
         return serverResponse;
     }
 }

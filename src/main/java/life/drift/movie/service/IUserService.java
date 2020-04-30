@@ -1,6 +1,7 @@
 package life.drift.movie.service;
 
 import life.drift.movie.model.Movie;
+import life.drift.movie.model.Review;
 import life.drift.movie.model.User;
 import life.drift.movie.utils.ServerResponse;
 
@@ -30,7 +31,7 @@ public interface IUserService {
     ServerResponse selectReviewByUserId(Long userId);
 
     //删除影评
-    ServerResponse deleteReviewById(Long reviewId, Long userId);
+    ServerResponse deleteReviewById(Review review);
 
 //    //查看单条影评
 //    ServerResponse selectReviewById(Long postId);
