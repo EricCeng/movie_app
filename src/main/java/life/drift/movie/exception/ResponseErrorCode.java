@@ -26,6 +26,8 @@ public enum ResponseErrorCode {
     POST_NOT_FOUND(22, "抱歉！此动态不存在哦，请重新选择！"),
     REVIEW_NOT_FOUND(23, "抱歉！此影评不存在哦，请重新选择！"),
     CONTENT_IS_EMPTY(24, "抱歉！内容不能为空哦！"),
+    NOTIFICATION_IS_EMPTY(25, "您目前没有任何通知哦，快去分享内容和大家一起交流吧！"),
+    NOTIFICATION_NOT_FOUND(26, "您的消息好像不见了？"),
 
     ;
 

@@ -2,6 +2,8 @@ package life.drift.movie.service.impl;
 
 import ch.qos.logback.core.joran.util.beans.BeanUtil;
 import life.drift.movie.common.CommentTypeEnum;
+import life.drift.movie.common.NotificationStatusEnum;
+import life.drift.movie.common.NotificationTypeEnum;
 import life.drift.movie.exception.ResponseErrorCode;
 import life.drift.movie.mapper.*;
 import life.drift.movie.model.*;
@@ -45,6 +47,9 @@ public class CommentService implements ICommentService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private NotificationExtMapper notificationExtMapper;
+
     //插入评论
     @Transactional
     @Override
@@ -56,6 +61,8 @@ public class CommentService implements ICommentService {
         if (comment.getType() == null || !CommentTypeEnum.isExist(comment.getType())) {
             return ServerResponse.createServerResponseByFail(ResponseErrorCode.COMMENT_PARAM_WRONG.getCode(), ResponseErrorCode.COMMENT_PARAM_WRONG.getMsg());
         }
+
+        //插入评论内容
 
         if (comment.getType().equals(CommentTypeEnum.POST.getType())) {
             //回复 动态
@@ -75,6 +82,8 @@ public class CommentService implements ICommentService {
             post.setCommentCount(1L);
             postExtMapper.incCommentCount(post);
 
+            createNotification(comment, post.getCreator(), post.getPostContent(), commentator.getUsername(), NotificationTypeEnum.REPLY_POST, post.getId());
+
         } else if (comment.getType().equals(CommentTypeEnum.REVIEW.getType())) {
             //回复 影评
             Review review = reviewMapper.selectByPrimaryKey(comment.getParentId());
@@ -92,6 +101,8 @@ public class CommentService implements ICommentService {
             //评论数
             review.setCommentCount(1L);
             reviewExtMapper.incCommentCount(review);
+
+            createNotification(comment, review.getCreator(), review.getReviewContent(), commentator.getUsername(), NotificationTypeEnum.REPLY_REVIEW, review.getId());
 
         } else if (comment.getType().equals(CommentTypeEnum.POST_COMMENT.getType())) {
             //回复 动态评论
@@ -115,6 +126,8 @@ public class CommentService implements ICommentService {
             postComment.setCommentCount(1L);
             commentExtMapper.incCommentCount(postComment);
 
+            createNotification(comment, postCommentCreator.getCommentator(), postCommentCreator.getContent(), commentator.getUsername(), NotificationTypeEnum.REPLY_POST_COMMENT, post.getId());
+
         } else if (comment.getType().equals(CommentTypeEnum.REVIEW_COMMENT.getType())) {
             //回复 影评评论
             Comment reviewCommentCreator = commentMapper.selectByPrimaryKey(comment.getParentId());
@@ -137,10 +150,29 @@ public class CommentService implements ICommentService {
             reviewComment.setId(comment.getParentId());
             reviewComment.setCommentCount(1L);
             commentExtMapper.incCommentCount(reviewComment);
+
+            createNotification(comment, reviewCommentCreator.getCommentator(), reviewCommentCreator.getContent(), commentator.getUsername(), NotificationTypeEnum.REPLY_REVIEW_COMMENT, review.getId());
         }
 
 
         return ServerResponse.createServerResponseBySuccess();
+    }
+
+    //创建通知
+    private void createNotification(Comment comment, Long receiver, String outerTitle, String notifierName, NotificationTypeEnum notificationType, Long outerId){
+        if(receiver.equals(comment.getCommentator())){
+            return;
+        }
+        Notification notification = new Notification();
+        notification.setNotifier(comment.getCommentator());
+        notification.setReceiver(receiver);
+        notification.setOuterid(outerId);
+        notification.setType(notificationType.getType());
+        notification.setStatus(NotificationStatusEnum.UNREAD.getStatus());
+        notification.setNotifierName(notifierName);
+        notification.setOuterTitle(outerTitle);
+
+        notificationExtMapper.insert(notification);
     }
 
     //查看评论

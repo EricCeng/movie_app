@@ -3,8 +3,10 @@ package life.drift.movie.interceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import life.drift.movie.common.Const;
 import life.drift.movie.exception.ResponseErrorCode;
+import life.drift.movie.service.INotificationService;
 import life.drift.movie.utils.ServerResponse;
 import life.drift.movie.vo.UserVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -20,11 +22,16 @@ import java.io.PrintWriter;
 @Service
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
+    @Autowired
+    private INotificationService notificationService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         HttpSession session = request.getSession();
         UserVO userVO = (UserVO) session.getAttribute(Const.CURRENT_USER);
         if (userVO != null) {
+            Long unreadCount = notificationService.unreadCount(userVO.getId());
+            session.setAttribute("UNREADCOUNT", unreadCount);
             return true;
         }
         //用户未登录
