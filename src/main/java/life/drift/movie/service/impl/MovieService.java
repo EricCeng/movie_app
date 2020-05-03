@@ -159,6 +159,7 @@ public class MovieService implements IMovieService {
             }
         }
 
+        //计算 电影平均分
         Double avgScore = reviewExtMapper.avgScore(review.getMovieId());
         movie.setScore(avgScore);
         movieExtMapper.updateScore(movie);
