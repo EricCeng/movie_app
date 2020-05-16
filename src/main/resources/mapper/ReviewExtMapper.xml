@@ -47,7 +47,7 @@
 
     <!-- 计算评分 -->
     <select id="avgScore" parameterType="java.lang.Long" resultType="Double">
-        select avg(review_score)
+        select format(avg(review_score),1)
         from review
         where movie_id = #{movieId,jdbcType=BIGINT}
     </select>

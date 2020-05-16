@@ -54,7 +54,7 @@ public class UserController {
     }
 
     //查看个人信息
-    @RequestMapping(value = "user/{userId}")
+    @RequestMapping(value = "user")
     public ServerResponse selectByUserId(HttpSession session) {
         UserVO userInfo = (UserVO) session.getAttribute(Const.CURRENT_USER);
         ServerResponse serverResponse = userService.selectByUserId(userInfo.getId());
